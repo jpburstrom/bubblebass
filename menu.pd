@@ -1,0 +1,54 @@
+#N canvas 269 139 955 534 12;
+#X obj 33 85 bng 15 250 50 0 empty empty sm 17 7 0 10 -262144 -1 -1
+;
+#X obj 714 55 bng 20 250 50 0 empty empty up 22 10 0 10 -262144 -1
+-1;
+#X obj 838 56 bng 20 250 50 0 empty empty dn 22 10 0 10 -262144 -1
+-1;
+#X floatatom 418 153 5 0 0 0 - - -;
+#X obj 460 126 t f f f f;
+#X obj 500 177 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X msg 484 43 0;
+#X text 512 43 reset;
+#N canvas 0 23 450 300 do 0;
+#X obj 171 66 inlet;
+#X restore 500 199 pd do something if active;
+#N canvas 0 23 450 300 menu 0;
+#X obj 87 17 inlet;
+#X obj 87 143 outlet;
+#X restore 500 152 pd menu name 2;
+#N canvas 0 23 450 300 menu 0;
+#X restore 714 85 pd menu name;
+#X obj 79 20 tgl 25 0 empty empty Switch 27 12 0 10 -262144 -1 -1 0
+1;
+#N canvas 429 415 450 300 play 0;
+#X obj 35 53 menuSpigot 3;
+#X obj 35 21 inlet;
+#X obj 116 21 inlet;
+#X obj 35 85 menuItem 1 red;
+#X obj 137 108 menuItem 2 green;
+#X obj 247 137 menuItem 3 blue;
+#X connect 0 0 3 0;
+#X connect 1 0 0 0;
+#X connect 2 0 0 1;
+#X connect 3 2 4 0;
+#X connect 4 2 5 0;
+#X restore 34 114 pd play;
+#N canvas 0 23 450 300 setup 0;
+#X obj 94 16 inlet;
+#X restore 181 108 pd setup;
+#X obj 79 57 menuItem 0 play;
+#X obj 181 85 menuItem 1 setup;
+#X obj 680 332 r MENU;
+#X obj 680 359 print menu;
+#X obj 224 240 inlet~;
+#X connect 0 0 12 0;
+#X connect 4 2 9 0;
+#X connect 5 0 8 0;
+#X connect 9 0 5 0;
+#X connect 11 0 14 0;
+#X connect 14 0 12 1;
+#X connect 14 2 15 0;
+#X connect 15 0 13 0;
+#X connect 16 0 17 0;
