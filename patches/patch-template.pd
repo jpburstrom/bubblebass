@@ -1,0 +1,18 @@
+#N canvas 148 52 606 638 10;
+#X declare -path ../abs -path ../rj;
+#X obj 94 19 inlet;
+#N canvas 0 23 450 300 guts 0;
+#X obj 37 37 inlet;
+#X obj 37 230 outlet;
+#X restore 94 43 pd guts;
+#X obj 94 67 outlet;
+#X obj 239 20 inlet~;
+#X obj 299 20 inlet~;
+#X obj 361 19 inlet~;
+#X obj 421 19 inlet~;
+#X obj 238 589 outlet~;
+#X obj 316 587 outlet~;
+#X obj 8 589 declare -path ../abs -path ../rj;
+#X obj 8 565 u_loader patchname \$0;
+#X connect 0 0 1 0;
+#X connect 1 0 2 0;
