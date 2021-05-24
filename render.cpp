@@ -18,6 +18,7 @@ extern "C" {
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include "imu/Pd_BNO055.h"
 
 #define ENABLE_TRILL
 
@@ -34,6 +35,8 @@ int getIdxFromId(const char* id, std::vector<std::pair<std::string,T>>& db)
 	return -1;
 }
 #endif // BELA_LIBPD_GUI || ENABLE_TRILL
+
+Pd_BNO055 bno;
 
 #ifdef ENABLE_TRILL
 #include <tuple>
@@ -156,7 +159,8 @@ void Bela_userSettings(BelaInitSettings *settings)
 
 float* gInBuf;
 float* gOutBuf;
-#define PARSE_MIDI
+//#define PARSE_MIDI
+#define NUM_MIDI_PORTS 0
 static std::vector<Midi*> midi;
 std::vector<std::string> gMidiPortNames;
 int gMidiVerbose = 1;
@@ -348,8 +352,31 @@ void Bela_listHook(const char *source, int argc, t_atom *argv)
 		return;
 	}
 #endif // BELA_LIBPD_GUI
+
 }
 void Bela_messageHook(const char *source, const char *symbol, int argc, t_atom *argv){
+	if(strcmp(source, "bno") == 0)
+	{
+		if(strcmp(symbol, "calibrate") == 0){
+			bno.doCalibrationStep();
+		} else if(strcmp(symbol, "loadCalibration") == 0){
+			rt_printf("Loading calibration...\n");
+			if (4 != argc) {
+				rt_fprintf(stderr, "Wrong calibration format, expected 4 floats (w, x, y, z)\n");
+			} {
+				float num[4] = {0.0, 0.0, 0.0, 0.0};
+				for(int n = 0; n < argc && n < 4; ++n) {
+					if(!libpd_is_float(&argv[n]))
+					{
+						rt_fprintf(stderr, "Wrong calibration format, expected 4 floats (w, x, y, z)\n");
+						return;
+					}
+					num[n] = libpd_get_float(&argv[n]);
+				}
+				bno.loadCalibration(num[0], num[1], num[2], num[3]);
+			}
+		}
+	}
 	if(strcmp(source, "bela_setMidi") == 0)
 	{
 		if(0 == strcmp("verbose", symbol))
@@ -593,8 +620,6 @@ void Bela_floatHook(const char *source, float value){
 	}
 }
 
-
-
 std::vector<std::string> gReceiverInputNames;
 std::vector<std::string> gReceiverOutputNames;
 void generateDigitalNames(unsigned int numDigitals, unsigned int libpdOffset, std::vector<std::string>& receiverInputNames, std::vector<std::string>& receiverOutputNames)
@@ -671,6 +696,8 @@ bool setup(BelaContext *context, void *userData)
 
 	scope.setup(gScopeChannelsInUse, context->audioSampleRate);
 	gScopeOut = new float[gScopeChannelsInUse];
+	
+	bno.setup(context);
 
 	// Check first of all if the patch file exists. Will actually open it later.
 	char file[] = "_main.pd";
@@ -778,6 +805,8 @@ bool setup(BelaContext *context, void *userData)
 #ifdef ENABLE_TRILL
 	libpd_bind("bela_setTrill");
 #endif // ENABLE_TRILL
+
+	libpd_bind("bno");
 
 	// open patch:
 	gPatch = libpd_openfile(file, folder);
@@ -1044,15 +1073,19 @@ void render(BelaContext *context, void *userData)
 			}
 		}
 	}
-#else
+//#else
+	/*
 	int input;
 	for(unsigned int port = 0; port < NUM_MIDI_PORTS; ++port){
 		while((input = midi[port].getInput()) >= 0){
 			libpd_midibyte(port, input);
 		}
 	}
+	*/
 #endif /* PARSE_MIDI */
 	unsigned int numberOfPdBlocksToProcess = context->audioFrames / gLibpdBlockSize;
+
+	bno.render(context);
 
 	// Remember: we have non-interleaved buffers and the same sampling rate for
 	// analogs, audio and digitals
