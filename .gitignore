@@ -4,3 +4,6 @@ gulpfile.js
 package.json
 package-lock.json
 node_modules
+settings.txt
+*.pd_linux
+*.pd_darwin
