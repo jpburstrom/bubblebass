@@ -1,0 +1,77 @@
+#N canvas 298 105 1142 532 10;
+#X msg 213 133 msg;
+#X obj 213 91 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X obj 213 69 loadbang;
+#X obj 213 112 metro 1000;
+#X text 324 47 Incoming controller messages \, to be routed;
+#X text 324 17 An abstraction creating a menu tree for routing incoming
+messages (controller data) to a tree of submenu abstractions;
+#X obj 320 101 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 1
+1;
+#X obj 289 336 menu-item 1;
+#X obj 345 380 menu-item 2;
+#X obj 542 141 r MENU;
+#X obj 542 163 print MENU;
+#X obj 345 405 print item2;
+#X obj 284 442 print item1;
+#X text 345 101 Main menu with 2 options \, 0 and 1;
+#X text 731 118 Outlet 2: messages if not active;
+#X text 731 137 Outlet 3: routed list of submenu items \, if active
+;
+#X text 731 156 Outlet 4: list of current menu items;
+#X obj 392 215 menu-item 1;
+#X obj 526 330 menu-item 1;
+#X obj 527 419 print item1;
+#X text 731 99 Outlet 1: messages to subpatch if active;
+#X text 195 247 Menu child is connected 1 \, 2 -> 1 \, 2;
+#X text 444 190 Menu sibling is connected 3 \, 4->1 \, 2;
+#X obj 209 205 cnv 15 180 30 empty empty main 20 12 0 14 -233017 -66577
+0;
+#X obj 202 331 cnv 15 80 30 empty empty sub1 20 12 0 14 -233017 -66577
+0;
+#X obj 438 326 cnv 15 80 30 empty empty sub2 20 12 0 14 -233017 -66577
+0;
+#X obj 757 261 menu-item 0 menukey 3;
+#X obj 847 291 menu-item 1;
+#X msg 754 228 menukey;
+#X obj 903 325 menu-item 2;
+#X msg 320 143 menu11;
+#X obj 208 305 menu-item 0 menu11 3;
+#X obj 444 301 menu-item 0 menu11 2;
+#X text 384 140 Submenu next;
+#X msg 360 164 menu11 1;
+#X text 423 162 Submenu select;
+#X obj 213 182 menu-item 0 menu1 2;
+#X msg 320 119 menu1 \$1;
+#X text 642 300 Arguments \; menu order number \; menu selection key
+\; menu selection counter;
+#X connect 0 0 36 0;
+#X connect 1 0 3 0;
+#X connect 2 0 1 0;
+#X connect 3 0 0 0;
+#X connect 6 0 37 0;
+#X connect 7 0 12 0;
+#X connect 7 2 8 0;
+#X connect 7 3 8 1;
+#X connect 8 0 11 0;
+#X connect 9 0 10 0;
+#X connect 17 0 32 0;
+#X connect 17 1 32 1;
+#X connect 18 0 19 0;
+#X connect 26 2 27 0;
+#X connect 26 3 27 1;
+#X connect 27 2 29 0;
+#X connect 27 3 29 1;
+#X connect 28 0 26 0;
+#X connect 30 0 36 0;
+#X connect 31 2 7 0;
+#X connect 31 3 7 1;
+#X connect 32 2 18 0;
+#X connect 32 3 18 1;
+#X connect 34 0 36 0;
+#X connect 36 0 31 0;
+#X connect 36 1 31 1;
+#X connect 36 2 17 0;
+#X connect 36 3 17 1;
+#X connect 37 0 36 0;
