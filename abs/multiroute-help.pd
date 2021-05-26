@@ -1,0 +1,25 @@
+#N canvas 568 437 666 607 10;
+#X obj 105 112 multiroute one/two/three/four/five;
+#X msg 105 85 one two three four five hello;
+#X obj 305 139 print unrouted;
+#X obj 105 142 print routed;
+#X msg 125 45 one two three four;
+#X msg 115 65 one two three four five;
+#X obj 279 139 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
+-1 -1;
+#X obj 77 141 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+-1;
+#X obj 99 290 route list;
+#X msg 98 266 zap zum;
+#X obj 155 321 print;
+#X msg 135 22 list zap zum;
+#X connect 0 0 3 0;
+#X connect 0 0 7 0;
+#X connect 0 1 2 0;
+#X connect 0 1 6 0;
+#X connect 1 0 0 0;
+#X connect 4 0 0 0;
+#X connect 5 0 0 0;
+#X connect 8 1 10 0;
+#X connect 9 0 8 0;
+#X connect 11 0 0 0;
