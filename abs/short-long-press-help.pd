@@ -1,30 +1,44 @@
-#N canvas 499 166 450 300 10;
-#X obj 94 105 short-long-press 500;
-#X obj 92 39 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#N canvas 351 68 742 329 10;
+#X obj 154 104 short-long-press 100;
+#X obj 157 17 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 92 59 1;
-#X obj 123 58 delay 499;
-#X msg 122 77 0;
-#X obj 94 139 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
+#X obj 157 38 t b b;
+#X obj 157 59 delay 99;
+#X msg 157 80 0;
+#X obj 273 133 print long;
+#X obj 153 133 print short;
+#X msg 216 55 1;
+#X obj 364 104 short-long-press 100;
+#X obj 367 17 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
 -1;
-#X obj 232 39 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144 -1
--1;
-#X obj 232 59 1;
-#X msg 262 77 0;
-#X obj 263 58 delay 501;
-#X obj 209 135 bng 15 250 50 0 empty empty empty 17 7 0 10 -262144
--1 -1;
-#X msg 32 46 1;
-#X connect 0 0 5 0;
-#X connect 0 1 10 0;
+#X obj 367 38 t b b;
+#X msg 367 80 0;
+#X obj 483 133 print long;
+#X obj 363 133 print short;
+#X msg 426 55 1;
+#X obj 367 59 delay 101;
+#X obj 483 273 print long;
+#X obj 363 273 print short;
+#X obj 364 244 short-long-press 1000;
+#X obj 364 218 tgl 15 0 empty empty empty 17 7 0 10 -262144 -1 -1 0
+1;
+#X text 390 217 long press is output directly after wait;
+#X connect 0 0 6 0;
+#X connect 0 1 5 0;
 #X connect 1 0 2 0;
-#X connect 1 0 3 0;
-#X connect 2 0 0 0;
+#X connect 2 0 3 0;
+#X connect 2 1 7 0;
 #X connect 3 0 4 0;
 #X connect 4 0 0 0;
-#X connect 6 0 7 0;
-#X connect 6 0 9 0;
 #X connect 7 0 0 0;
-#X connect 8 0 0 0;
-#X connect 9 0 8 0;
-#X connect 11 0 0 0;
+#X connect 8 0 13 0;
+#X connect 8 1 12 0;
+#X connect 9 0 10 0;
+#X connect 10 0 15 0;
+#X connect 10 1 14 0;
+#X connect 11 0 8 0;
+#X connect 14 0 8 0;
+#X connect 15 0 11 0;
+#X connect 18 0 17 0;
+#X connect 18 1 16 0;
+#X connect 19 0 18 0;
