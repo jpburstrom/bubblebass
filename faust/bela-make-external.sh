@@ -1,7 +1,10 @@
 #!/bin/bash
 
 file=$1
-name=${file/.cpp/}
-outFile="${name}~.pd_linux"
+tmpFile=${file/.ext/}
+name=${tmpFile/.cpp/}
+outFile="../${name}~.pd_linux"
 
-clang++ -std=c++11 -O3 -mtune=cortex-a8 -mfloat-abi=hard  -ftree-vectorize -ffast-math  -I /usr/local/include/libpd/ -fPIC -shared -Dmydsp=$name -o $outFile $file
+cp $file $tmpFile
+clang++ -std=c++11 -O3 -mtune=cortex-a8 -mfloat-abi=hard  -ftree-vectorize -ffast-math  -I /usr/local/include/libpd/ -fPIC -shared -Dmydsp=$name -o $outFile $tmpFile
+rm $tmpFile
