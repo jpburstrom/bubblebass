@@ -236,7 +236,7 @@ patches/ change number to number of patches;
 #X obj 266 42 inlet;
 #X obj 198 106 menu-item 1;
 #X obj 256 136 menu-item 2;
-#N canvas 0 474 450 300 calibration 0;
+#N canvas 0 474 450 300 calibration 1;
 #X obj 110 31 inlet;
 #X restore 48 111 pd calibration;
 #X obj 66 76 menu-item 0 btn_small/short 3;
