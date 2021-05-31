@@ -14,13 +14,13 @@
 #X obj 297 115 mtof;
 #X obj 297 94 + 36;
 #X text 329 94 C0 is 24 \, this is octave (partial) above;
-#X obj 297 257 sigmund~ pitch peaks -npeak 8 -npts 4096 -hop 2048;
 #X obj 492 297 list prepend peaks-\$1;
+#X obj 297 257 sigmund~ pitch -npeak 8 -npts 4096 -hop 2048;
 #X connect 0 0 1 0;
-#X connect 0 0 15 0;
+#X connect 0 0 16 0;
 #X connect 2 0 3 0;
 #X connect 5 0 2 0;
-#X connect 6 0 15 0;
+#X connect 6 0 16 0;
 #X connect 7 0 8 0;
 #X connect 8 0 9 0;
 #X connect 9 0 10 0;
@@ -28,6 +28,5 @@
 #X connect 11 0 6 0;
 #X connect 12 0 11 0;
 #X connect 13 0 12 0;
-#X connect 15 0 5 0;
-#X connect 15 1 16 0;
-#X connect 16 0 2 0;
+#X connect 15 0 2 0;
+#X connect 16 0 5 0;
