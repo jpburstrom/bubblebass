@@ -7,7 +7,7 @@
 #X obj 181 45 inlet~ G;
 #X obj 311 46 inlet~ D;
 #X obj 435 69 inlet~ A;
-#X obj 51 96 s~ pitch-C;
+#X obj 64 112 s~ pitch-C;
 #X obj 182 98 s~ pitch-G;
 #X obj 311 176 s~ pitch-D;
 #X obj 442 178 s~ pitch-A;
@@ -19,6 +19,7 @@
 #X obj 203 226 outlet~;
 #X obj 320 234 outlet~;
 #X obj 414 239 outlet~;
+#X obj 3 45 osc~ 440;
 #X connect 0 0 10 0;
 #X connect 0 1 14 0;
 #X connect 1 0 9 0;
@@ -35,3 +36,4 @@
 #X connect 6 0 0 0;
 #X connect 7 0 19 0;
 #X connect 7 0 3 0;
+#X connect 20 0 2 0;
