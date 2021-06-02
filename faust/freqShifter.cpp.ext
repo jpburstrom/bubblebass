@@ -800,16 +800,16 @@ class mydsp : public dsp {
 	float fConst0;
 	float fConst1;
 	FAUSTFLOAT fHslider0;
-	float fRec5[2];
-	float fRec4[3];
+	float fRec4[2];
 	float fRec3[3];
-	float fRec2[3];
+	float fVec0[2];
+	float fRec2[2];
 	float fRec1[3];
 	float fRec0[3];
 	float fConst2;
-	float fRec6[2];
-	float fRec8[3];
+	float fRec5[2];
 	float fRec7[3];
+	float fRec6[3];
 	
  public:
 	
@@ -822,14 +822,20 @@ class mydsp : public dsp {
 		m->declare("filters.lib/fir:author", "Julius O. Smith III");
 		m->declare("filters.lib/fir:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
 		m->declare("filters.lib/fir:license", "MIT-style STK-4.3 license");
-		m->declare("filters.lib/highpass6e:author", "Julius O. Smith III");
-		m->declare("filters.lib/highpass6e:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
-		m->declare("filters.lib/highpass6e:license", "MIT-style STK-4.3 license");
+		m->declare("filters.lib/highpass3e:author", "Julius O. Smith III");
+		m->declare("filters.lib/highpass3e:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
+		m->declare("filters.lib/highpass3e:license", "MIT-style STK-4.3 license");
 		m->declare("filters.lib/iir:author", "Julius O. Smith III");
 		m->declare("filters.lib/iir:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
 		m->declare("filters.lib/iir:license", "MIT-style STK-4.3 license");
 		m->declare("filters.lib/lowpass0_highpass1", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
 		m->declare("filters.lib/name", "Faust Filters Library");
+		m->declare("filters.lib/tf1:author", "Julius O. Smith III");
+		m->declare("filters.lib/tf1:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
+		m->declare("filters.lib/tf1:license", "MIT-style STK-4.3 license");
+		m->declare("filters.lib/tf1s:author", "Julius O. Smith III");
+		m->declare("filters.lib/tf1s:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
+		m->declare("filters.lib/tf1s:license", "MIT-style STK-4.3 license");
 		m->declare("filters.lib/tf2:author", "Julius O. Smith III");
 		m->declare("filters.lib/tf2:copyright", "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>");
 		m->declare("filters.lib/tf2:license", "MIT-style STK-4.3 license");
@@ -902,15 +908,15 @@ class mydsp : public dsp {
 	
 	virtual void instanceClear() {
 		for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) {
-			fRec5[l0] = 0.0f;
+			fRec4[l0] = 0.0f;
 		}
 		for (int l1 = 0; (l1 < 3); l1 = (l1 + 1)) {
-			fRec4[l1] = 0.0f;
+			fRec3[l1] = 0.0f;
 		}
-		for (int l2 = 0; (l2 < 3); l2 = (l2 + 1)) {
-			fRec3[l2] = 0.0f;
+		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
+			fVec0[l2] = 0.0f;
 		}
-		for (int l3 = 0; (l3 < 3); l3 = (l3 + 1)) {
+		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
 			fRec2[l3] = 0.0f;
 		}
 		for (int l4 = 0; (l4 < 3); l4 = (l4 + 1)) {
@@ -920,13 +926,13 @@ class mydsp : public dsp {
 			fRec0[l5] = 0.0f;
 		}
 		for (int l6 = 0; (l6 < 2); l6 = (l6 + 1)) {
-			fRec6[l6] = 0.0f;
+			fRec5[l6] = 0.0f;
 		}
 		for (int l7 = 0; (l7 < 3); l7 = (l7 + 1)) {
-			fRec8[l7] = 0.0f;
+			fRec7[l7] = 0.0f;
 		}
 		for (int l8 = 0; (l8 < 3); l8 = (l8 + 1)) {
-			fRec7[l8] = 0.0f;
+			fRec6[l8] = 0.0f;
 		}
 	}
 	
@@ -962,51 +968,43 @@ class mydsp : public dsp {
 		float fSlow1 = (0.00100000005f * std::max<float>(5.0f, (-1.0f * fSlow0)));
 		float fSlow2 = (fConst2 * fSlow0);
 		for (int i = 0; (i < count); i = (i + 1)) {
-			fRec5[0] = (fSlow1 + (0.999000013f * fRec5[1]));
-			float fTemp0 = std::tan((fConst1 * fRec5[0]));
+			fRec4[0] = (fSlow1 + (0.999000013f * fRec4[1]));
+			float fTemp0 = std::tan((fConst1 * fRec4[0]));
 			float fTemp1 = (1.0f / fTemp0);
 			float fTemp2 = mydsp_faustpower2_f(fTemp0);
-			float fTemp3 = (1.0f / fTemp2);
-			float fTemp4 = (((fTemp1 + 3.18972731f) / fTemp0) + 4.07678175f);
-			fRec4[0] = (float(input0[i]) - (((fRec4[2] * (((fTemp1 + -3.18972731f) / fTemp0) + 4.07678175f)) + (2.0f * (fRec4[1] * (4.07678175f - fTemp3)))) / fTemp4));
-			float fTemp5 = (0.00176617282f / fTemp2);
-			float fTemp6 = (fTemp5 + 0.000407678192f);
-			float fTemp7 = (((fTemp1 + 0.743130445f) / fTemp0) + 1.4500711f);
-			fRec3[0] = (((((fRec4[0] * fTemp6) + (2.0f * (fRec4[1] * (0.000407678192f - fTemp5)))) + (fRec4[2] * fTemp6)) / fTemp4) - (((fRec3[2] * (((fTemp1 + -0.743130445f) / fTemp0) + 1.4500711f)) + (2.0f * (fRec3[1] * (1.4500711f - fTemp3)))) / fTemp7));
-			float fTemp8 = (11.0520525f / fTemp2);
-			float fTemp9 = (fTemp8 + 1.4500711f);
-			float fTemp10 = (((fTemp1 + 0.157482162f) / fTemp0) + 0.935140193f);
-			fRec2[0] = (((((fRec3[0] * fTemp9) + (2.0f * (fRec3[1] * (1.4500711f - fTemp8)))) + (fRec3[2] * fTemp9)) / fTemp7) - (((fRec2[2] * (((fTemp1 + -0.157482162f) / fTemp0) + 0.935140193f)) + (2.0f * (fRec2[1] * (0.935140193f - fTemp3)))) / fTemp10));
-			float fTemp11 = (50.0638084f / fTemp2);
-			float fTemp12 = (fTemp11 + 0.935140193f);
-			float fTemp13 = ((((fRec2[0] * fTemp12) + (2.0f * (fRec2[1] * (0.935140193f - fTemp11)))) + (fRec2[2] * fTemp12)) / fTemp10);
-			float fTemp14 = (0.0256900005f * fRec1[1]);
-			fRec1[0] = (((0.260502011f * fRec1[2]) + fTemp13) - fTemp14);
-			float fTemp15 = (1.86849999f * fRec0[1]);
-			fRec0[0] = ((fRec1[2] + (fTemp15 + fTemp14)) - ((0.870685995f * fRec0[2]) + (0.260502011f * fRec1[0])));
-			fRec6[0] = (fSlow2 + (fRec6[1] - std::floor((fSlow2 + fRec6[1]))));
-			float fTemp16 = (6.28318548f * std::fmod(fRec6[0], 1.0f));
-			float fTemp17 = (1.94632006f * fRec8[1]);
-			fRec8[0] = ((fTemp13 + fTemp17) - (0.946569979f * fRec8[2]));
-			float fTemp18 = (0.837740004f * fRec7[1]);
-			fRec7[0] = ((fRec8[2] + ((0.946569979f * fRec8[0]) + fTemp18)) - ((0.063380003f * fRec7[2]) + fTemp17));
-			output0[i] = FAUSTFLOAT((((((0.870685995f * fRec0[0]) + fRec0[2]) - fTemp15) * std::cos(fTemp16)) - ((((0.063380003f * fRec7[0]) + fRec7[2]) - fTemp18) * std::sin(fTemp16))));
-			fRec5[1] = fRec5[0];
-			fRec4[2] = fRec4[1];
+			float fTemp3 = (((fTemp1 + 0.568330586f) / fTemp0) + 0.708079457f);
+			fRec3[0] = (float(input0[i]) - (((fRec3[2] * (((fTemp1 + -0.568330586f) / fTemp0) + 0.708079457f)) + (2.0f * (fRec3[1] * (0.708079457f - (1.0f / fTemp2))))) / fTemp3));
+			float fTemp4 = (0.822445929f / fTemp2);
+			float fTemp5 = (fTemp4 + 0.0140264481f);
+			float fTemp6 = (((fRec3[0] * fTemp5) + (2.0f * (fRec3[1] * (0.0140264481f - fTemp4)))) + (fRec3[2] * fTemp5));
+			fVec0[0] = (fTemp6 / fTemp3);
+			float fTemp7 = (fTemp1 + 1.2158854f);
+			fRec2[0] = ((fVec0[1] * (0.0f - (1.2158854f / (fTemp0 * fTemp7)))) + (((1.2158854f * (fTemp6 / (fTemp0 * fTemp3))) - (fRec2[1] * (1.2158854f - fTemp1))) / fTemp7));
+			float fTemp8 = (0.0256900005f * fRec1[1]);
+			fRec1[0] = ((fRec2[0] + (0.260502011f * fRec1[2])) - fTemp8);
+			float fTemp9 = (1.86849999f * fRec0[1]);
+			fRec0[0] = ((fRec1[2] + (fTemp9 + fTemp8)) - ((0.870685995f * fRec0[2]) + (0.260502011f * fRec1[0])));
+			fRec5[0] = (fSlow2 + (fRec5[1] - std::floor((fSlow2 + fRec5[1]))));
+			float fTemp10 = (6.28318548f * std::fmod(fRec5[0], 1.0f));
+			float fTemp11 = (1.94632006f * fRec7[1]);
+			fRec7[0] = ((fRec2[0] + fTemp11) - (0.946569979f * fRec7[2]));
+			float fTemp12 = (0.837740004f * fRec6[1]);
+			fRec6[0] = ((fRec7[2] + ((0.946569979f * fRec7[0]) + fTemp12)) - ((0.063380003f * fRec6[2]) + fTemp11));
+			output0[i] = FAUSTFLOAT((((((0.870685995f * fRec0[0]) + fRec0[2]) - fTemp9) * std::cos(fTemp10)) - ((((0.063380003f * fRec6[0]) + fRec6[2]) - fTemp12) * std::sin(fTemp10))));
 			fRec4[1] = fRec4[0];
 			fRec3[2] = fRec3[1];
 			fRec3[1] = fRec3[0];
-			fRec2[2] = fRec2[1];
+			fVec0[1] = fVec0[0];
 			fRec2[1] = fRec2[0];
 			fRec1[2] = fRec1[1];
 			fRec1[1] = fRec1[0];
 			fRec0[2] = fRec0[1];
 			fRec0[1] = fRec0[0];
-			fRec6[1] = fRec6[0];
-			fRec8[2] = fRec8[1];
-			fRec8[1] = fRec8[0];
+			fRec5[1] = fRec5[0];
 			fRec7[2] = fRec7[1];
 			fRec7[1] = fRec7[0];
+			fRec6[2] = fRec6[1];
+			fRec6[1] = fRec6[0];
 		}
 	}
 
