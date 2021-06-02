@@ -1,4 +1,4 @@
-#N canvas 468 358 610 305 10;
+#N canvas 491 255 787 472 10;
 #X obj 312 96 pitchtracker~ 73.41;
 #X obj 182 76 pitchtracker~ 48.99;
 #X obj 52 76 pitchtracker~ 32.7;
@@ -19,13 +19,19 @@
 #X obj 203 226 outlet~;
 #X obj 320 234 outlet~;
 #X obj 414 239 outlet~;
-#X obj 3 45 osc~ 440;
+#X obj 137 19 readsf~;
+#X obj 136 -127 openpanel;
+#X msg 136 -75 open /Users/johannes/projects/komp-2020/AudioSculpt/Buffé.wav
+\, start;
+#X obj 136 -158 bng 25 250 50 0 empty empty empty 17 7 0 10 -262144
+-260097 -1;
+#X msg 135 -109 set open \$1 \, addcomma \, add2 start \, bang;
+#X msg 147 -8 stop;
+#X obj 151 267 dac~;
 #X connect 0 0 10 0;
 #X connect 0 1 14 0;
 #X connect 1 0 9 0;
 #X connect 1 1 13 0;
-#X connect 2 0 8 0;
-#X connect 2 1 12 0;
 #X connect 3 0 11 0;
 #X connect 3 1 15 0;
 #X connect 4 0 2 0;
@@ -37,3 +43,10 @@
 #X connect 7 0 19 0;
 #X connect 7 0 3 0;
 #X connect 20 0 2 0;
+#X connect 20 0 26 1;
+#X connect 20 1 22 0;
+#X connect 21 0 24 0;
+#X connect 22 0 20 0;
+#X connect 23 0 21 0;
+#X connect 24 0 22 0;
+#X connect 25 0 20 0;

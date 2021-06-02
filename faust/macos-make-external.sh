@@ -9,3 +9,4 @@ source=$(faust2puredata -tosource $file);
 mv $source .
 rm -r faust.*
 
+mv $outfile ..
