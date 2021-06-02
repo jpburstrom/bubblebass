@@ -61,12 +61,12 @@ void Pd_BNO055::render(BelaContext *context) {
 	if(++readCount >= readIntervalSamples) {
 		readCount = 0;
 		Bela_scheduleAuxiliaryTask(i2cTask);
+        // send IMU values to Pd
+        libpd_float("bno_yaw", ypr[0]);
+        libpd_float("bno_pitch", ypr[1]);
+        libpd_float("bno_roll", ypr[2]);
 	}
 
-	// send IMU values to Pd
-	libpd_float("bno_yaw", ypr[0]);
-	libpd_float("bno_pitch", ypr[1]);
-	libpd_float("bno_roll", ypr[2]);
 
 	if( doCalibration ){
 		// then run calibration to set looking forward (gGravIdle) 
