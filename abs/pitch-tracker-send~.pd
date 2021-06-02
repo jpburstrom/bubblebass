@@ -1,0 +1,10 @@
+#N canvas 0 23 450 300 10;
+#X obj 318 100 s~ amp-\$1;
+#X obj 220 99 s~ pitch-\$1;
+#X obj 138 96 s~ osc-\$1;
+#X obj 140 44 inlet~;
+#X obj 220 44 inlet~;
+#X obj 320 44 inlet~;
+#X connect 3 0 2 0;
+#X connect 4 0 1 0;
+#X connect 5 0 0 0;
