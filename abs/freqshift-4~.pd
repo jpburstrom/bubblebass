@@ -17,7 +17,7 @@
 #X obj 310 239 freqshift~ \$0 4;
 #X obj 429 78 u_dispatch \$0 freqmod-mute;
 #X obj 429 99 u_dispatch \$0 freqmod-offset;
-#X msg 469 48 freq-1 0;
+#X msg 469 48 freq-1 -1000;
 #X connect 0 0 11 0;
 #X connect 2 0 15 0;
 #X connect 4 0 12 0;
