@@ -18,6 +18,7 @@
 #X obj 210 209 volume~ \$0 3;
 #X obj 310 239 volume~ \$0 4;
 #X obj 428 278 outlet;
+#X obj 736 220 u_loader volume \$0;
 #X connect 0 0 4 0;
 #X connect 2 0 5 0;
 #X connect 4 0 1 0;

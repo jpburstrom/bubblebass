@@ -7,11 +7,12 @@
 #X obj 220 396 * 1;
 #X obj 218 448 liner~ 2;
 #X obj 214 40 inlet;
-#X obj 216 72 patchparamrouter amp \$2 \$1;
+#X obj 212 87 patchparamrouter amp \$2 \$1;
 #X obj 327 332 r \$1-mute;
 #X obj 370 183 outlet;
 #X text 397 332 global mute;
 #X text 388 72 amp \, ampmod1 \, ampmod2 \, ampmod3;
+#X floatatom 146 154 5 0 0 0 - - -;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
 #X connect 3 0 5 0;
@@ -21,5 +22,6 @@
 #X connect 6 0 1 1;
 #X connect 7 0 8 0;
 #X connect 8 0 3 0;
+#X connect 8 0 13 0;
 #X connect 8 4 10 0;
 #X connect 9 0 4 0;
