@@ -957,17 +957,19 @@ void render(BelaContext *context, void *userData)
 			} else if(Trill::CENTROID == mode)
 			{
 				if(touchSensor.is1D()) {
-
 					//Avoid sending multiple zero messages
+					/*
 					if (touchSensor.getNumTouches() != gTouchSensorsStatus[idx] 
 							|| gTouchSensorsStatus[idx] > 0) {
-						gTouchSensorsStatus[idx] = touchSensor.getNumTouches();
-						libpd_start_message(2 * touchSensor.getNumTouches() + 1);
-						libpd_add_float(touchSensor.getNumTouches());
-						for(int i = 0; i < touchSensor.getNumTouches(); i++) {
-							libpd_add_float(touchSensor.touchLocation(i));
-							libpd_add_float(touchSensor.touchSize(i));
-						}
+						continue;
+					}
+					*/
+					gTouchSensorsStatus[idx] = touchSensor.getNumTouches();
+					libpd_start_message(2 * touchSensor.getNumTouches() + 1);
+					libpd_add_float(touchSensor.getNumTouches());
+					for(int i = 0; i < touchSensor.getNumTouches(); i++) {
+						libpd_add_float(touchSensor.touchLocation(i));
+						libpd_add_float(touchSensor.touchSize(i));
 					}
 				} else if (touchSensor.is2D()) {
 					int numTouches = touchSensor.compoundTouchSize() > 0;
