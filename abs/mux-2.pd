@@ -12,7 +12,7 @@
 #X obj 376 130 2;
 #X obj 237 154 t b f f b, f 20;
 #X msg 154 148 _activate;
-#X msg 154 127 _deactivate;
+#X msg 153 117 _deactivate;
 #X obj 113 -18 route _deactivate _activate;
 #X msg 114 96 0;
 #X obj 318 111 select \$1 \$2, f 20;
@@ -39,7 +39,7 @@
 #X obj 565 197 <= 2;
 #X obj 598 69 spigot 1;
 #X obj 237 90 route float symbol bang;
-#N canvas 0 23 450 300 c 1;
+#N canvas 0 23 450 300 c 0;
 #X obj 124 9 inlet;
 #X obj 137 151 outlet;
 #X obj 141 61 % 2;
@@ -96,7 +96,7 @@
 #X connect 29 0 33 0;
 #X connect 29 1 30 0;
 #X connect 30 0 23 0;
-#X connect 31 0 3 0;
+#X connect 31 0 1 0;
 #X connect 31 1 27 0;
 #X connect 32 0 26 0;
 #X connect 33 0 22 0;
