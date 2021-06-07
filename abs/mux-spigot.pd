@@ -1,0 +1,15 @@
+#N canvas 270 225 450 300 10;
+#X obj 126 33 inlet;
+#X obj 236 32 inlet;
+#X obj 239 55 route _activate _deactivate;
+#X obj 126 105 spigot;
+#X obj 127 134 outlet;
+#X obj 239 76 1;
+#X obj 309 76 0;
+#X connect 0 0 3 0;
+#X connect 1 0 2 0;
+#X connect 2 0 5 0;
+#X connect 2 1 6 0;
+#X connect 3 0 4 0;
+#X connect 5 0 3 1;
+#X connect 6 0 3 1;
