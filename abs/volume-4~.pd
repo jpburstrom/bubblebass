@@ -1,4 +1,4 @@
-#N canvas 351 49 995 584 10;
+#N canvas 445 290 995 584 10;
 #X declare -path ../rj;
 #X obj 30 11 inlet~;
 #X obj 30 183 outlet~;
