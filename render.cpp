@@ -1094,12 +1094,12 @@ void render(BelaContext *context, void *userData)
 #endif /* PARSE_MIDI */
 	unsigned int numberOfPdBlocksToProcess = context->audioFrames / gLibpdBlockSize;
 
-	bno.render(context);
 
 	// Remember: we have non-interleaved buffers and the same sampling rate for
 	// analogs, audio and digitals
 	for(unsigned int tick = 0; tick < numberOfPdBlocksToProcess; ++tick)
 	{
+		bno.render(context, gLibpdBlockSize);
 		//audio input
 		for(int n = 0; n < context->audioInChannels; ++n)
 		{

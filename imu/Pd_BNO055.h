@@ -32,7 +32,7 @@ class Pd_BNO055 {
 	public: 
 		Pd_BNO055() {};
 		bool setup(BelaContext *context);
-		void render(BelaContext *context);
+		void render(BelaContext *context, int blocksize);
 		void doCalibrationStep();
 		void loadCalibration(float w, float x, float y, float z);
 		static void getNeutralGravityStatic(void* arg); 

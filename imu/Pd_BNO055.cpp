@@ -54,18 +54,20 @@ bool Pd_BNO055::setup(BelaContext *context) {
 	return true;
 }
 
-void Pd_BNO055::render(BelaContext *context) {
+void Pd_BNO055::render(BelaContext *context, int blocksize) {
 	//************ Added for BNO055 based head-tracking ***************
 
 	// this schedules the imu sensor readings
-	if(++readCount >= readIntervalSamples) {
-		readCount = 0;
+	if(readCount >= readIntervalSamples) {
+		readCount = readCount - readIntervalSamples;
 		Bela_scheduleAuxiliaryTask(i2cTask);
         // send IMU values to Pd
         libpd_float("bno_yaw", ypr[0]);
         libpd_float("bno_pitch", ypr[1]);
         libpd_float("bno_roll", ypr[2]);
 	}
+
+	readCount += blocksize;
 
 
 	if( doCalibration ){
