@@ -78,7 +78,7 @@
 #X obj 66 331 -~ 1;
 #X obj 131 549 outlet~ lin;
 #X obj 238 367 outlet~ lin;
-#X obj 452 470 block~ 2 1 0.125;
+#X obj 452 470 block~ 16 1 0.125;
 #X connect 0 0 6 0;
 #X connect 1 0 28 0;
 #X connect 2 0 10 0;

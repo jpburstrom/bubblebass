@@ -1,4 +1,4 @@
-#N canvas 491 255 787 472 10;
+#N canvas 491 255 787 567 10;
 #X obj 312 96 pitchtracker~ 73.41;
 #X obj 182 76 pitchtracker~ 48.99;
 #X obj 52 76 pitchtracker~ 32.7;
@@ -23,6 +23,8 @@
 #X obj 171 124 pitch-tracker-send~ 2;
 #X obj 321 154 pitch-tracker-send~ 3;
 #X obj 451 184 pitch-tracker-send~ 4;
+#X obj 519 -31 inlet;
+#X obj 682 99 outlet;
 #X connect 0 0 20 0;
 #X connect 0 1 20 1;
 #X connect 0 2 20 2;
@@ -50,3 +52,8 @@
 #X connect 15 0 13 0;
 #X connect 16 0 14 0;
 #X connect 17 0 12 0;
+#X connect 22 0 18 3;
+#X connect 22 0 23 0;
+#X connect 22 0 19 3;
+#X connect 22 0 20 3;
+#X connect 22 0 21 3;
