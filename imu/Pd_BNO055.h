@@ -34,7 +34,7 @@ class Pd_BNO055 {
 		bool setup(BelaContext *context);
 		void render(BelaContext *context, int blocksize);
 		void doCalibrationStep();
-		void loadCalibration(float w, float x, float y, float z);
+		void loadCalibration(float iw, float ix, float iy, float iz, float w, float x, float y, float z);
 		static void getNeutralGravityStatic(void* arg); 
 		static void getDownGravityStatic(void* arg); 
 		static void readIMUStatic(void* arg); 

@@ -362,19 +362,19 @@ void Bela_messageHook(const char *source, const char *symbol, int argc, t_atom *
 			bno.doCalibrationStep();
 		} else if(strcmp(symbol, "loadCalibration") == 0){
 			rt_printf("Loading calibration...\n");
-			if (4 != argc) {
+			if (8 != argc) {
 				rt_fprintf(stderr, "Wrong calibration format, expected 4 floats (w, x, y, z)\n");
 			} {
-				float num[4] = {0.0, 0.0, 0.0, 0.0};
-				for(int n = 0; n < argc && n < 4; ++n) {
+				float num[8] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+				for(int n = 0; n < argc && n < 8; ++n) {
 					if(!libpd_is_float(&argv[n]))
 					{
-						rt_fprintf(stderr, "Wrong calibration format, expected 4 floats (w, x, y, z)\n");
+						rt_fprintf(stderr, "Wrong calibration format, expected 8 floats (iw, ix, iy, iz, w, x, y, z)\n");
 						return;
 					}
 					num[n] = libpd_get_float(&argv[n]);
 				}
-				bno.loadCalibration(num[0], num[1], num[2], num[3]);
+				bno.loadCalibration(num[0], num[1], num[2], num[3], num[4], num[5], num[6], num[7]);
 			}
 		}
 	}

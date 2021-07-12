@@ -98,8 +98,10 @@ void Pd_BNO055::doCalibrationStep()
 	doCalibration = true;
 }
 
-void Pd_BNO055::loadCalibration(float w, float x, float y, float z)
+void Pd_BNO055::loadCalibration(float iw, float ix, float iy, float iz, float w, float x, float y, float z)
 {
+    rt_printf("Loading calibration\n");
+	gIdleConj = imu::Quaternion(iw, ix, iy, iz);
 	gCal = imu::Quaternion(w, x, y, z);
 	resetOrientation();
 }
@@ -194,7 +196,11 @@ void Pd_BNO055::calibrate() {
 
   	gCal.fromMatrix(rot);
 
-	libpd_start_message(4);
+	libpd_start_message(8);
+	libpd_add_float(gIdleConj.w());
+	libpd_add_float(gIdleConj.x());
+	libpd_add_float(gIdleConj.y());
+	libpd_add_float(gIdleConj.z());
 	libpd_add_float(gCal.w());
 	libpd_add_float(gCal.x());
 	libpd_add_float(gCal.y());
