@@ -1218,6 +1218,7 @@ void cleanup(BelaContext *context, void *userData)
 		delete t.second;
 	}
 #endif // ENABLE_TRILL
+	libpd_bang("closebang");
 	libpd_closefile(gPatch);
 	delete [] gScopeOut;
 }
