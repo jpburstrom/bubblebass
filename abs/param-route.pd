@@ -1,0 +1,27 @@
+#N canvas 364 48 570 348 10;
+#X obj 82 87 inlet;
+#X obj 142 129 route bang;
+#X obj 142 247 outlet;
+#X obj 201 170 route help;
+#X obj 81 150 route \$1;
+#X obj 196 246 outlet;
+#X obj 82 108 t a a;
+#X msg 201 191 help;
+#X obj 82 244 outlet;
+#X obj 81 171 t a a;
+#X text 77 269 only params (pass to things to control);
+#X text 163 46 routing \$1 while passing on meta messages to middle
+outlet;
+#X text 245 244 discarded messages \, including meta;
+#X text 144 289 params + meta (pass to param);
+#X connect 0 0 6 0;
+#X connect 1 0 2 0;
+#X connect 1 1 3 0;
+#X connect 3 0 7 0;
+#X connect 4 0 9 0;
+#X connect 4 1 5 0;
+#X connect 6 0 4 0;
+#X connect 6 1 1 0;
+#X connect 7 0 2 0;
+#X connect 9 0 8 0;
+#X connect 9 1 2 0;
