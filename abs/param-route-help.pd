@@ -1,0 +1,20 @@
+#N canvas 545 171 623 398 10;
+#X text 163 46 routing \$1 while passing on meta messages to middle
+outlet;
+#X obj 138 86 param-route test;
+#X msg 139 66 test 1;
+#X obj 138 107 print 1;
+#X obj 168 127 print 2;
+#X msg 193 64 elephant 23;
+#X obj 228 127 print 3;
+#X text 94 170 1 only params (pass to things to control);
+#X text 167 141 2 params + meta (pass to param);
+#X text 282 129 3 discarded messages \, including meta;
+#X msg 140 32 help;
+#X text 348 76 meta messages: help \, bang (see u_dispatch);
+#X connect 1 0 3 0;
+#X connect 1 1 4 0;
+#X connect 1 2 6 0;
+#X connect 2 0 1 0;
+#X connect 5 0 1 0;
+#X connect 10 0 1 0;
