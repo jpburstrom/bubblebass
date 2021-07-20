@@ -8,3 +8,4 @@ settings.txt
 *.pd_linux
 *.pd_darwin
 .~lock*
+sketches
