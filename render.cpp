@@ -968,7 +968,8 @@ void render(BelaContext *context, void *userData)
 					libpd_start_message(2 * touchSensor.getNumTouches() + 1);
 					libpd_add_float(touchSensor.getNumTouches());
 					for(int i = 0; i < touchSensor.getNumTouches(); i++) {
-						libpd_add_float(touchSensor.touchLocation(i));
+                        //Map trill values: Invert range and clip close to the edge
+                        libpd_add_float(constrain(map(touchSensor.touchLocation(i), 0.05, 0.95, 1, 0), 0, 1));
 						libpd_add_float(touchSensor.touchSize(i));
 					}
 				} else if (touchSensor.is2D()) {
