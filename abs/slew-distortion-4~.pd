@@ -1,4 +1,4 @@
-#N canvas 249 313 1216 516 10;
+#N canvas 224 313 1216 516 10;
 #X declare -path ../rj -path ../puremapping;
 #X obj 83 32 inlet~;
 #X obj 83 243 slew-distortion~ 2000;
@@ -20,6 +20,7 @@
 #X obj 715 195 lop~ 1;
 #X obj 772 168 param amount \$0;
 #X obj 715 128 list split 1;
+#X obj 852 267 u_loader slew \$0;
 #X connect 0 0 1 0;
 #X connect 1 0 2 0;
 #X connect 3 0 4 0;
