@@ -17,7 +17,14 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 	//Respawn everything - set to false to not respawn trill synth
 	//when working interactively/remotely
 	//(because it crashes when respawning)
-	var respawn = false;
+	var respawnAll = false;
+
+	if (respawnAll) {
+		~server.freeAll;
+		~server.initTree;
+		~server.notify = true;
+		~server.startAliveThread;
+	};
 
 
 	//SynthDefs
@@ -31,9 +38,9 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 	// ~server.controlBusAllocator.reserve(0, 256);
 
 	~ctlBus = (
-		switch: Bus('control', 1, 1),
+		btnSwitch: Bus('control', 1, 1),
 		keyUp: Bus('control', 3, 1),
-		keyDown: Bus('control', 4, 1),
+		keyDn: Bus('control', 4, 1),
 		//5..144: Trill
 		imu: Bus('control', 145, 3),
 		pitch: Bus('control', 148, 4),
@@ -55,9 +62,8 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 		main: Bus.audio(s, 4);
 	);
 
-
 	//Allocate groups
-	if (respawn or: ~groups.isNil or: { ~groups[\input].isPlaying.not }) {
+	if (respawnAll or: ~groups.isNil or: { ~groups[\input].isPlaying.not }) {
 		~groups.do(_.free);
 		~groups = ();
 		~synths = ();
@@ -72,18 +78,68 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 	//Avoid respawning trill synth if possible
 	~synths.keysValuesDo { |k, v|
 		if (k != \trillInput) {
-			v.free;
+			//.do because some values are arrays
+			v.do(_.free);
 		}
 	};
 
-	if (respawn or: ~synths[\trillInput].isPlaying.not) {
+
+	if (respawnAll or: ~synths[\trillInput].isPlaying.not) {
 		~synths[\trillInput] = Synth(\trillInput, ~ctlBus.trill.collect({ |bus, i| ["out%".format(i), bus] }).flatten, ~groups.input).register(true);
 	};
 
 	~synths[\bbIn] = Synth(\bbIn, [\out, ~audioBus.main], ~groups.input);
 	~synths[\imuInput] = Synth(\imuInput, [\out, ~ctlBus.imu], ~groups.input);
+	~synths[\keyUp] = Synth(\threeStateKey, [\pin, 13, \outbus, ~ctlBus.keyUp], ~groups.input);
+	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
+	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.input);
+
+	~synths[\trillRouting] = nil ! 4;
+	~synths[\trillMT] = Array(12);
+	~synths[\pitchTracker] = nil ! 4;
+	~synths[\envFollow] = nil ! 4;
+
+	//trill(1..4) -> trillRouting(1..4) ->>> trillMultiTouchFilter(1..12)
+	4.do { |i|
+
+		~synths[\pitchTracker][i] = Synth(\pitchTracker, [
+			\in, ~audioBus.main.subBus(i),
+			\out, ~ctlBus.pitch.subBus(i),
+			\ffreq, #[32.7, 48.99, 73.41, 110][i]
+		], ~groups.analysis, \addToTail);
+
+		~synths[\envFollow][i] = Synth(\envFollow, [
+			\in, ~audioBus.main.subBus(i),
+			\out, ~ctlBus.envFollow.subBus(i),
+		], ~groups.analysis, \addToTail);
+
+		~synths[\trillRouting][i] = Synth(\trillRouting, [
+			\btnBus, ~ctlBus.keyUp,
+			\trillBus, ~ctlBus.trill[i],
+			\outSingle, ~ctlBus.trillSingle[i],
+			\outDouble, ~ctlBus.trillDouble[i],
+			\outLong, ~ctlBus.trillLong[i]
+		], ~groups.input, \addToTail);
+
+		["Single", "Double", "Long"].do { |keyState, ksIdx|
+			~synths[\trillMT].add(Synth(\trillMultiTouchFilter, [
+				\trillBus, ~ctlBus["trill%".format(keyState).asSymbol][i],
+				\out, ~ctlBus["trillMT%".format(keyState).asSymbol][i]
+			], ~groups.input, \addToTail)
+			)
+		}
+
+	};
+
+	//TODO Map synths to buses
+
+
+	~synths[\test] = Synth(\bbFxTest, nil, ~groups.fx1)
+	.mapn(\amount, ~ctlBus[\trillMTSingle][0], 5);
+
 
 
 	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0, \directOut, 2], ~groups.output);
 }
 
+{ SinOsc.ar(220) }.play(outbus: ~audioBus.main)
