@@ -24,17 +24,26 @@ SynthDef(\threeStateKey, {
 
 	trig = Gate.kr(trig, timer > debounceTime);
 
-	btnState =
-	//8 = long
-	(Gate.kr((timer > longTime) * trig, trig) * 8)
 	//4 = double
-	+ (btnPressed * Latch.kr(Timer.kr(trig) < doubleTime, trig) * 4);
+	btnState = (btnPressed * Latch.kr(Timer.kr(trig) < doubleTime, trig) * 4);
 	//2 = single
 	btnState = btnState + (2 * btnState.not * btnPressed * trig.not * (timer > doubleTime));
 
-	//Add trig, Filter out zeros
-	btnState = Latch.kr(btnState, trig + (btnState > 0));
+	//8 = long
+	btnState = btnState + Gate.kr((timer > longTime) * 8, trig);
+
+	btnState.poll;
+
+
+	//Trig at double + long time, filter out zeroes
+	btnState = Latch.kr(btnState, Trig1.kr(timer>doubleTime * btnState) + Trig1.kr(timer > longTime));
 
 	Out.kr(\outbus.kr, btnState);
 
 }).add;
+
+SynthDef(\simpleButton, {
+	Out.kr(\outbus.kr, DigitalIn.kr(\pin.kr(0)));
+}).add;
+
+
