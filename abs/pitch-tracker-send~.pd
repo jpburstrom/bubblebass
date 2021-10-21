@@ -11,6 +11,7 @@
 #X msg 535 161 set amp-\$1;
 #X obj 218 226 send~ pitch-\$1;
 #X obj 364 228 send~ amp-\$1;
+#X text 646 57 FIXME should be ampmod-offset?;
 #X connect 0 0 8 0;
 #X connect 2 0 10 0;
 #X connect 3 0 11 0;
