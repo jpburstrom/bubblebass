@@ -35,6 +35,6 @@ SynthDef(\threeStateKey, {
 	//Add trig, Filter out zeros
 	btnState = Latch.kr(btnState, trig + (btnState > 0));
 
-	Out.kr(\outbus.kr, btnState.poll);
+	Out.kr(\outbus.kr, btnState);
 
 }).add;

@@ -26,9 +26,9 @@ SynthDef(\pitchTracker, {
 	//Denominator is sr / freq
 	denom = (Latch.ar(sig, [1 - square, trig]).sum - 3).max(SampleRate.ir / maxFreq);
 
-	sig = sig / denom.poll; // Final triangle wave
+	sig = sig / denom; // Final triangle wave
 	pitch = max(0, SampleRate.ir / denom); //Pitch estimation
 
 	//TODO bus output
 
-}).play
+}).add;

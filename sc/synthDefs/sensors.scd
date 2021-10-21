@@ -1,7 +1,7 @@
 SynthDef(\imuInput, {
 	var data = BNO.orientationKr(\calibrate.tr(0), \load.tr(0), \save.tr(0));
 	Out.kr(\out.kr(0), data);
-});
+}).add;
 
 SynthDef(\trillInput, {
 	4.do { |i|
@@ -11,8 +11,7 @@ SynthDef(\trillInput, {
 		vals[3].linlin(0.05, 0.95, 0, 1);
 		Out.kr(NamedControl.kr("out%".format(i)), vals[0..4]);
 	}
-});
-
+}).add;
 
 
 //------Trill Multitouch filter-----
