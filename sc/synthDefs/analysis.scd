@@ -1,12 +1,12 @@
 SynthDef(\pitchTracker, {
 
 	var square, trig, denom, pitch;
-	var sig, insig = SinOsc.ar(20);
+	var sig, insig = In.ar(\in.kr(0), 1);
 	var test;
 	var maxFreq = 320;
 
 	//Prefilter
-	sig = BPF.ar(insig, 32.7, 0.06); //Too narrow rq?
+	sig = BPF.ar(insig, \ffreq.kr(32.7), 0.06); //Too narrow rq?
 	//TODO add an adaptive filter - check the GR300 specs
 
 	//Rectify
@@ -24,11 +24,22 @@ SynthDef(\pitchTracker, {
 	//Sample-and-hold both sawtooth waves halfway up
 	//Sum and subtract a magic number
 	//Denominator is sr / freq
-	denom = (Latch.ar(sig, [1 - square, trig]).sum - 3).max(SampleRate.ir / maxFreq);
+	denom = A2K.kr(Latch.ar(sig, [1 - square, trig]).sum - 3).max(SampleRate.ir / maxFreq);
 
-	sig = sig / denom; // Final triangle wave
+	//sig = sig / denom; // Final triangle wave
 	pitch = max(0, SampleRate.ir / denom); //Pitch estimation
 
 	//TODO bus output
 
+	Out.kr(\out.kr(0), pitch);
+
 }).add;
+
+SynthDef(\envFollow, {
+	var sig = In.ar(\in.kr(0), 1);
+	sig = sig.abs;
+	sig = Slew.ar(sig, \up.ir(100), \down.ir(2));
+	Out.kr(\out.kr(0), sig);
+}).add;
+
+
