@@ -41,7 +41,7 @@ SynthDef(\trillMultiTouchFilter, {
 
 	//If going from 0 to higher, wait waitTime and keep track of maximum value
 	//When wait is over, latch max value as current numFingers until fingers are released
-	var numFingers = Latch.kr(RunningMax.kr(trill[0], aboveZero.not), initDone) * (Sweep.kr(reset).poll > waitTime) * aboveZero;
+	var numFingers = Latch.kr(RunningMax.kr(trill[0], aboveZero.not), initDone) * (Sweep.kr(reset) > waitTime) * aboveZero;
 
 	//Send a 5-channel signal, [1f loc, 1f touch, 2f loc, 2f loc, 3f trig]
 	Out.kr(\out.kr, [
@@ -49,11 +49,11 @@ SynthDef(\trillMultiTouchFilter, {
 		Gate.kr([1,2].collect(trill[_]), BinaryOpUGen('==', numFingers, 1) * BinaryOpUGen('==', numFingers, trill[0])),
 
 		//Send index 1 & 3 to bus2 if numFingers == 2, otherwise hold last value
-		Out.kr(\bus2.kr, Gate.kr([1,3].collect(trill[_]), BinaryOpUGen('==', numFingers, 2) * BinaryOpUGen('==', numFingers, trill[0]))),
+		Gate.kr([1,3].collect(trill[_]), BinaryOpUGen('==', numFingers, 2) * BinaryOpUGen('==', numFingers, trill[0])),
 
 		//Send trig to bus3 if numFingers == 3
-		Out.kr(\bus3.kr, Trig.kr(BinaryOpUGen('==', numFingers, 3)))
-	])
+		Trig.kr(BinaryOpUGen('==', numFingers, 3))
+	].flatten)
 
 }).add;
 
