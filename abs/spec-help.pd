@@ -1,0 +1,25 @@
+#N canvas 21 23 764 501 10;
+#X obj 143 114 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 12700 1;
+#X floatatom 470 321 5 0 0 0 - - -;
+#X floatatom 471 210 5 0 0 0 - - -;
+#X obj 141 198 print;
+#X floatatom 186 136 5 0 0 0 - - -;
+#X floatatom 151 154 5 0 0 0 - - -;
+#X text 48 184 doesn't work;
+#X obj 471 189 spec-map-dbamp 80 106;
+#X obj 468 161 hsl 128 15 0 1 0 0 empty empty empty -2 -8 0 10 -262144
+-1 -1 12700 1;
+#X floatatom 471 260 5 0 0 0 - - -;
+#X obj 471 239 spec-map-lin 80 106;
+#X obj 141 177 spec 0 1 80 106 lin;
+#X text 472 100 TODO define these:;
+#X text 144 79 then fix this;
+#X connect 0 0 4 0;
+#X connect 0 0 11 0;
+#X connect 5 0 11 0;
+#X connect 7 0 2 0;
+#X connect 8 0 7 0;
+#X connect 8 0 10 0;
+#X connect 10 0 9 0;
+#X connect 11 0 3 0;
