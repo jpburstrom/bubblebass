@@ -32,9 +32,6 @@ SynthDef(\threeStateKey, {
 	//8 = long
 	btnState = btnState + Gate.kr((timer > longTime) * 8, trig);
 
-	btnState.poll;
-
-
 	//Trig at double + long time, filter out zeroes
 	btnState = Latch.kr(btnState, Trig1.kr(timer>doubleTime * btnState) + Trig1.kr(timer > longTime));
 
