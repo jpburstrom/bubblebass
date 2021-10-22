@@ -10,14 +10,12 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 ~server.options.reservedNumControlBusChannels = 256;
 ~server.options.maxLogins = 2;
 
-
-
 ~server.waitForBoot {
 
 	//Respawn everything - set to false to not respawn trill synth
 	//when working interactively/remotely
 	//(because it crashes when respawning)
-	var respawnAll = false;
+	var respawnAll = ~respawnAll ? false;
 
 	if (respawnAll) {
 		~server.freeAll;
@@ -141,5 +139,3 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 
 	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0, \directOut, 2], ~groups.output);
 }
-
-{ SinOsc.ar(220) }.play(outbus: ~audioBus.main)
