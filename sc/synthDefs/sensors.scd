@@ -6,13 +6,12 @@ SynthDef(\imuInput, {
 SynthDef(\trillInput, {
 	4.do { |i|
 		var vals = TrillCentroids.kr(1, 0x20 + i, 0.02, 4)[0..4];
-		//Fix edges - TODO make this part of Centroids class?
-		vals[1].linlin(0.05, 0.95, 0, 1);
-		vals[3].linlin(0.05, 0.95, 0, 1);
+		//Fix edges + invert scale - TODO make this part of Centroids class?
+		vals[1] = vals[1].linlin(0.05, 0.95, 1, 0);
+		vals[3] = vals[3].linlin(0.05, 0.95, 1, 0);
 		Out.kr(NamedControl.kr("out%".format(i)), vals[0..4]);
 	}
 }).add;
-
 
 //------Trill Multitouch filter-----
 //Input: 5-channel bus
