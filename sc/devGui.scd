@@ -1,6 +1,9 @@
 var path = "".resolveRelative;
 var plotter;
-var win = Window().front.layout_(VLayout(
+var win;
+~respawnAll = true;
+(path +/+ "main.scd").load;
+win = Window().front.layout_(VLayout(
 	HLayout(
 		Button().states_([["Soft reload"]]).action_({
 			~respawnAll = false;
