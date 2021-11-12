@@ -7,7 +7,6 @@ SynthDef(\bbIn, {
 
 SynthDef(\bbOut, {
 	var in = In.ar(\in.kr(0), 4);
-	//TODO make this 4 separate controls
 	var out = Mix.fill(4, { |i|
 		Pan2.ar(in[i], NamedControl.kr("pan%".format(i+1)));
 	});
