@@ -16,24 +16,54 @@ SynthDef(\threeStateKey, {
 	var longTime = 0.5;
 	var debounceTime = 0.01;
 	//
-	//var trig = MouseButton.kr(lag:0);
-	var trig = DigitalIn.kr(\pin.kr(0));
-	var timer = Sweep.kr(Trig1.kr(trig, debounceTime));
-	var btnPressed = Latch.kr(1, trig);
+	//var rawButton = MouseButton.kr(lag:0);
+	var rawButton = DigitalIn.kr(\pin.kr(0));
+	var trig = Trig1.kr(rawButton, debounceTime);
+	var timer = Sweep.kr(trig);
+	var btnInited = Latch.kr(1, trig);
 	var btnState;
 
-	trig = Gate.kr(trig, timer > debounceTime);
+	var btnPressed = Gate.kr(rawButton, timer > debounceTime);
 
 	//4 = double
-	btnState = (btnPressed * Latch.kr(Timer.kr(trig) < doubleTime, trig) * 4);
+	btnState = (btnInited * Latch.kr(Timer.kr(trig) < doubleTime, trig) * 4);
 	//2 = single
-	btnState = btnState + (2 * btnState.not * btnPressed * trig.not * (timer > doubleTime));
+	btnState = btnState + (2 * btnState.not * btnInited * btnPressed.not * (timer > doubleTime));
 
 	//8 = long
-	btnState = btnState + Gate.kr((timer > longTime) * 8, trig);
+	btnState = btnState + Gate.kr((timer > longTime) * 8, btnPressed);
+
+	//Trig at trig + double + long time, filter out zeroes
+	btnState = trig + Latch.kr(btnState, Trig1.kr(timer>doubleTime * btnState) + Trig1.kr(timer > longTime));
+
+	Out.kr(\outbus.kr, btnState);
+
+}).add;
+
+SynthDef(\threeStateToggle, {
+
+	var longTime = 0.5;
+	var debounceTime = 0.01;
+
+	//var rawButton = MouseButton.kr(lag:0);
+	var rawButton = DigitalIn.kr(\pin.kr(0));
+	var trig = Trig1.kr(rawButton, debounceTime);
+	var timer = Sweep.kr(trig);
+	//Toggle between 2 & 4, output zero until triggered
+	var tgl = ToggleFF.kr(trig) * 2 + Latch.kr(2, trig);
+	var btnState;
+
+	var buttonPressed = Gate.kr(rawButton, timer > debounceTime);
+
+	//8 = long
+	btnState = Gate.kr((timer > longTime) * 8, buttonPressed);
+
+	//2 = toggle off, 4= toggle on
+	btnState = btnState + (btnState.not * Demand.kr(trig, btnState, Dseq([2, 4], inf)));
+
 
 	//Trig at double + long time, filter out zeroes
-	btnState = Latch.kr(btnState, Trig1.kr(timer>doubleTime * btnState) + Trig1.kr(timer > longTime));
+	btnState = Latch.kr(btnState, Impulse.kr(0) + buttonPressed.not + Trig1.kr(timer > longTime)).poll;
 
 	Out.kr(\outbus.kr, btnState);
 
