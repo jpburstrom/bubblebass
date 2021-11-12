@@ -43,6 +43,7 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 		imu: Bus('control', 145, 3),
 		pitch: Bus('control', 148, 4),
 		envFollow: Bus('control', 152, 4),
+		leds: Bus('control', 156, 3)
 	);
 	//Make 4-item arrays of buses
 	value {
@@ -86,12 +87,19 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 		~synths[\trillInput] = Synth(\trillInput, ~ctlBus.trill.collect({ |bus, i| ["out%".format(i), bus] }).flatten, ~groups.input).register(true);
 	};
 
+	//Audio input
 	~synths[\bbIn] = Synth(\bbIn, [\out, ~audioBus.main], ~groups.input);
+	//Input from motion sensor
 	~synths[\imuInput] = Synth(\imuInput, [\out, ~ctlBus.imu], ~groups.input);
-	~synths[\keyUp] = Synth(\threeStateKey, [\pin, 13, \outbus, ~ctlBus.keyUp], ~groups.input);
+
+	//Keys and buttons
+	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp], ~groups.input);
 	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
 	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.input);
+	~synths[\leds] = Synth(\ledBus, [\inbus, ~ctlBus[\leds]], ~groups.output);
+	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
 
+	//Placeholders for synths
 	~synths[\trillRouting] = nil ! 4;
 	~synths[\trillMT] = Array(12);
 	~synths[\pitchTracker] = nil ! 4;
@@ -132,8 +140,8 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 	//TODO Map synths to buses
 
 
-	~synths[\test] = Synth(\bbFxTest, nil, ~groups.fx1)
-	.mapn(\amount, ~ctlBus[\trillMTSingle][0], 5);
+	//~synths[\test] = Synth(\bbFxTest, nil, ~groups.fx1)
+	//.mapn(\amount, ~ctlBus[\trillMTSingle][0], 5);
 
 
 
