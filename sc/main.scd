@@ -1,16 +1,16 @@
 ~isBela = Platform.architecture == \AArch64;
 if (~isBela.not and: { ~belaServer.isNil }) {
-	~belaServer = Server.remote(\bela, NetAddr("bela.local", 57110), ServerOptions());
-	Server.default = ~belaServer;
+	~belaServer = Server.remote(\bela, NetAddr("bela", 57110), ServerOptions());
 	~belaServer.notify = true;
 	~belaServer.startAliveThread
 };
 
+Server.default = ~belaServer;
 ~server = Server.default;
 ~server.options.reservedNumControlBusChannels = 256;
 ~server.options.maxLogins = 2;
 
-~server.waitForBoot {
+fork {
 
 	//Respawn everything - set to false to not respawn trill synth
 	//when working interactively/remotely
@@ -40,7 +40,14 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 		keyUp: Bus('control', 3, 1),
 		keyDn: Bus('control', 4, 1),
 		//5..144: Trill
+
+		//Imu as 3-channel bus + separate channels
+		//for convenience
 		imu: Bus('control', 145, 3),
+		imuPitch: Bus('control', 145, 1),
+		imuRoll: Bus('control', 146, 1),
+		imuYaw: Bus('control', 147, 1),
+
 		pitch: Bus('control', 148, 4),
 		envFollow: Bus('control', 152, 4),
 		leds: Bus('control', 156, 3)
@@ -49,8 +56,8 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 	value {
 		var offset = 5;
 		#[trill,
-			trillSingle, trillDouble, trillLong,
-			trillMTSingle, trillMTDouble, trillMTLong].do { |key, index|
+			trillRed, trillGreen, trillBlue,
+			trillMTRed, trillMTGreen, trillMTBlue].do { |key, index|
 			~ctlBus[key] = 4.collect { |num|
 				Bus('control', offset + (5 * ((index * 4) + num)), 5);
 			}
@@ -100,10 +107,11 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
 
 	//Placeholders for synths
-	~synths[\trillRouting] = nil ! 4;
 	~synths[\trillMT] = Array(12);
-	~synths[\pitchTracker] = nil ! 4;
-	~synths[\envFollow] = nil ! 4;
+	#[trillRouting, pitchTracker, envFollow, volume].do { |key|
+		~synths[key] = nil ! 4;
+	};
+
 
 	//trill(1..4) -> trillRouting(1..4) ->>> trillMultiTouchFilter(1..12)
 	4.do { |i|
@@ -114,6 +122,7 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 			\ffreq, #[32.7, 48.99, 73.41, 110][i]
 		], ~groups.analysis, \addToTail);
 
+
 		~synths[\envFollow][i] = Synth(\envFollow, [
 			\in, ~audioBus.main.subBus(i),
 			\out, ~ctlBus.envFollow.subBus(i),
@@ -122,18 +131,27 @@ if (~isBela.not and: { ~belaServer.isNil }) {
 		~synths[\trillRouting][i] = Synth(\trillRouting, [
 			\btnBus, ~ctlBus.keyUp,
 			\trillBus, ~ctlBus.trill[i],
-			\outSingle, ~ctlBus.trillSingle[i],
-			\outDouble, ~ctlBus.trillDouble[i],
-			\outLong, ~ctlBus.trillLong[i]
+			\outRed, ~ctlBus.trillRed[i],
+			\outGreen, ~ctlBus.trillGreen[i],
+			\outBlue, ~ctlBus.trillBlue[i]
 		], ~groups.input, \addToTail);
 
-		["Single", "Double", "Long"].do { |keyState, ksIdx|
+		["Red", "Green", "Blue"].do { |keyState, ksIdx|
 			~synths[\trillMT].add(Synth(\trillMultiTouchFilter, [
 				\trillBus, ~ctlBus["trill%".format(keyState).asSymbol][i],
 				\out, ~ctlBus["trillMT%".format(keyState).asSymbol][i]
 			], ~groups.input, \addToTail)
 			)
-		}
+		};
+
+
+		~synths[\volume][i] = Synth(\volume, [
+			\in, ~audioBus[\main].subBus(i),
+			\out, ~audioBus[\main].subBus(i),
+			\imuBus, ~ctlBus[\imuPitch], //pitch
+			\trillBus, ~ctlBus[\trillMTRed][i],
+			\preamp, 3
+		], ~groups.level, \addToTail);
 
 	};
 
