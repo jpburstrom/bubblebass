@@ -104,22 +104,33 @@ fork {
 	~synths[\leds] = Synth(\ledBus, [\inbus, ~ctlBus[\leds]], ~groups.output);
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
 
-	//Placeholders for synths
-	#[trillRouting, pitchTracker, envFollow, volume].do { |key|
-		~synths[key] = nil ! 4;
-	};
 
-	//trill(1..4) -> trillRouting(1..4) ->>> trillMultiTouchFilter(1..12)
-	4.do { |i|
-
-		~synths[\trillRouting][0] = Synth(\trillRouting, [
+	//Three routing defs, red green blue
+	~synths[\trillRouting] = nil ! 3;
+	#[trillRed, trillGreen, trillBlue].do { |key, i|
+		~synths[\trillRouting][i] = Synth(\trillRouting, [
 			\btnBus, ~ctlBus.keyUp,
 			//Use first buses, output on all of them (4 x 5 ch)
 			\trillBus, ~ctlBus.trill[0], //first trill bus
-			\out, ~ctlBus.trillRed[0],
-			\outGreen, ~ctlBus.trillGreen[0],
-			\outBlue, ~ctlBus.trillBlue[0]
+			\out, ~ctlBus[key][0],
 		], ~groups.input, \addToTail);
+	};
+
+
+	//Input from keyUp button, pausing inactive routing synthDefs
+	~synths[\nodePauseController] = Synth(\nodePauseController,
+		[#[synth1, synth2, synth3, inbus], ~synths[\trillRouting] ++ ~ctlBus.keyUp].flop.flat,
+		~groups.input, \addToTail
+	);
+
+	//Placeholders for synths
+	#[pitchTracker, envFollow, volume].do { |key|
+		~synths[key] = nil ! 4;
+	};
+
+	4.do { |i|
+
+
 
 		~synths[\pitchTracker][i] = Synth(\pitchTracker, [
 			\in, ~audioBus.main.subBus(i),
