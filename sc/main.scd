@@ -39,25 +39,23 @@ fork {
 		btnSwitch: Bus('control', 1, 1),
 		keyUp: Bus('control', 3, 1),
 		keyDn: Bus('control', 4, 1),
-		//5..144: Trill
+		//5..84: Trill
 
 		//Imu as 3-channel bus + separate channels
 		//for convenience
-		imu: Bus('control', 145, 3),
-		imuPitch: Bus('control', 145, 1),
-		imuRoll: Bus('control', 146, 1),
-		imuYaw: Bus('control', 147, 1),
+		imu: Bus('control', 85, 3),
+		imuPitch: Bus('control', 85, 1),
+		imuRoll: Bus('control', 86, 1),
+		imuYaw: Bus('control', 87, 1),
 
-		pitch: Bus('control', 148, 4),
-		envFollow: Bus('control', 152, 4),
-		leds: Bus('control', 156, 3)
+		pitch: Bus('control', 88, 4),
+		envFollow: Bus('control', 92, 4),
+		leds: Bus('control', 96, 3)
 	);
 	//Make 4-item arrays of buses
 	value {
 		var offset = 5;
-		#[trill,
-			trillRed, trillGreen, trillBlue,
-			trillMTRed, trillMTGreen, trillMTBlue].do { |key, index|
+		#[trill, trillRed, trillGreen, trillBlue].do { |key, index|
 			~ctlBus[key] = 4.collect { |num|
 				Bus('control', offset + (5 * ((index * 4) + num)), 5);
 			}
@@ -107,14 +105,21 @@ fork {
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
 
 	//Placeholders for synths
-	~synths[\trillMT] = Array(12);
 	#[trillRouting, pitchTracker, envFollow, volume].do { |key|
 		~synths[key] = nil ! 4;
 	};
 
-
 	//trill(1..4) -> trillRouting(1..4) ->>> trillMultiTouchFilter(1..12)
 	4.do { |i|
+
+		~synths[\trillRouting][0] = Synth(\trillRouting, [
+			\btnBus, ~ctlBus.keyUp,
+			//Use first buses, output on all of them (4 x 5 ch)
+			\trillBus, ~ctlBus.trill[0], //first trill bus
+			\out, ~ctlBus.trillRed[0],
+			\outGreen, ~ctlBus.trillGreen[0],
+			\outBlue, ~ctlBus.trillBlue[0]
+		], ~groups.input, \addToTail);
 
 		~synths[\pitchTracker][i] = Synth(\pitchTracker, [
 			\in, ~audioBus.main.subBus(i),
@@ -122,27 +127,10 @@ fork {
 			\ffreq, #[32.7, 48.99, 73.41, 110][i]
 		], ~groups.analysis, \addToTail);
 
-
 		~synths[\envFollow][i] = Synth(\envFollow, [
 			\in, ~audioBus.main.subBus(i),
 			\out, ~ctlBus.envFollow.subBus(i),
 		], ~groups.analysis, \addToTail);
-
-		~synths[\trillRouting][i] = Synth(\trillRouting, [
-			\btnBus, ~ctlBus.keyUp,
-			\trillBus, ~ctlBus.trill[i],
-			\outRed, ~ctlBus.trillRed[i],
-			\outGreen, ~ctlBus.trillGreen[i],
-			\outBlue, ~ctlBus.trillBlue[i]
-		], ~groups.input, \addToTail);
-
-		["Red", "Green", "Blue"].do { |keyState, ksIdx|
-			~synths[\trillMT].add(Synth(\trillMultiTouchFilter, [
-				\trillBus, ~ctlBus["trill%".format(keyState).asSymbol][i],
-				\out, ~ctlBus["trillMT%".format(keyState).asSymbol][i]
-			], ~groups.input, \addToTail)
-			)
-		};
 
 
 		~synths[\volume][i] = Synth(\volume, [
