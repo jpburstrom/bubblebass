@@ -3,13 +3,15 @@ SynthDef(\imuInput, {
 	Out.kr(\out.kr(0), data);
 }).add;
 
+
 SynthDef(\trillInput, {
 	4.do { |i|
 		var vals = TrillCentroids.kr(1, 0x20 + i, 0.02, 4)[0..4];
 		//Fix edges + invert scale - TODO make this part of Centroids class?
 		vals[1] = vals[1].linlin(0.05, 0.95, 1, 0);
 		vals[3] = vals[3].linlin(0.05, 0.95, 1, 0);
-		Out.kr(NamedControl.kr("out%".format(i)), vals[0..4]);
+		//Output in reverse order - 0 is uppermost, 3 lowest
+		Out.kr(NamedControl.kr("out%".format(3 - i)), vals[0..4]);
 	}
 }).add;
 
