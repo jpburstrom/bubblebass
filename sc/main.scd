@@ -50,7 +50,8 @@ fork {
 
 		pitch: Bus('control', 88, 4),
 		envFollow: Bus('control', 92, 4),
-		leds: Bus('control', 96, 3)
+		leds: Bus('control', 96, 3),
+		null: Bus('control', 224, 32)
 	);
 	//Make 4-item arrays of buses
 	value {
@@ -97,12 +98,13 @@ fork {
 	//Input from motion sensor
 	~synths[\imuInput] = Synth(\imuInput, [\out, ~ctlBus.imu], ~groups.input);
 
-	//Keys and buttons
-	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp], ~groups.input);
-	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
-	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.input);
 	//Save/Load/Quit
 	~synths[\bubbleUtils] = Synth(\bubbleUtils, [\pin, 12], ~groups.input);
+
+	//Keys and buttons
+	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp, \nullbus, ~ctlBus[\null]], ~groups.input);
+	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
+	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.input);
 
 	~synths[\leds] = Synth(\ledBus, [\inbus, ~ctlBus[\leds]], ~groups.output);
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
@@ -115,6 +117,7 @@ fork {
 			//Use first buses, output on all of them (4 x 5 ch)
 			\trillBus, ~ctlBus.trill[0], //first trill bus
 			\out, ~ctlBus[key][0],
+			\nullbus, ~ctlBus[\null]
 		], ~groups.input, \addToTail);
 	};
 

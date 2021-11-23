@@ -54,6 +54,10 @@ SynthDef(\threeStateToggle, {
 	var btnState;
 
 	var buttonPressed = Gate.kr(rawButton, timer > debounceTime);
+	var btnInited = Latch.kr(1, trig);
+	//Don't output until inited
+	var outbus = Select.kr(btnInited, [\nullbus.kr(224), \outbus.kr]);
+
 
 	//8 = long
 	btnState = Gate.kr((timer > longTime) * 8, buttonPressed);
@@ -65,7 +69,7 @@ SynthDef(\threeStateToggle, {
 	//Trig at double + long time, filter out zeroes
 	btnState = Latch.kr(btnState, Impulse.kr(0) + buttonPressed.not + Trig1.kr(timer > longTime));
 
-	Out.kr(\outbus.kr, btnState);
+	Out.kr(outbus, btnState);
 
 }).add;
 
