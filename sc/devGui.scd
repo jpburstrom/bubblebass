@@ -17,6 +17,22 @@ win = Window().front.layout_(VLayout(
 			Server.default.freeAll.initTree.notify_(true).startAliveThread;
 		}),
 	),
+	StaticText().string_("IMU"),
+	HLayout(
+		Button().states_([["Calibrate"]]).action_({
+			~synths[\imuInput].set(\calibrate, 1)
+
+		}),
+		Button().states_([["Load"]]).action_({
+			~synths[\imuInput].set(\load, 1)
+
+		}),
+		Button().states_([["Save"]]).action_({
+			~synths[\imuInput].set(\save, 1)
+
+		})
+	),
+
 	"utils/bela-bus-sliders.scd".loadRelative,
 	plotter = ScrollView().minHeight_(300)
 ));
