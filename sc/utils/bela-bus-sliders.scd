@@ -34,34 +34,49 @@ listAction = { |bus|
 	}).play(addAction:\addToTail);
 };
 
-audiobuses = (spkr: Bus(), direct: Bus(\audio, 2, 4), main: { ~audioBus.main });
+audiobuses = (
+	spkr: Bus(),
+	direct: Bus(\audio, 2, 4),
+	main: { ~audioBus.main },
+	input: Bus('audio', 4, 4);
+
+);
 buses = ();
 
-~ctlBus.keysValuesDo({ |k, item|
-	if (item.isArray) {
-		item.do { |bus, i|
-			buses["% %".format(k, i + 1).asSymbol] = bus;
+
+~belaServer.doWhenBooted {
+
+	~ctlBus.keysValuesDo({ |k, item|
+		if (item.isArray) {
+			item.do { |bus, i|
+				buses["% %".format(k, i + 1).asSymbol] = bus;
+			}
+		} {
+			buses[k] = item;
 		}
-	} {
-		buses[k] = item;
-	}
-});
+	});
+	alist.items_(audiobuses.keys.asArray.sort);
+	clist.items_(buses.keys.asArray.sort);
+	clist.valueAction = 0;
+
+};
+
 
 sliders = 5.collect { Slider().orientation_(\vertical) };
 numbers = 5.collect { NumberBox() };
-~server.notify = true;
+//~server.notify = true;
 
 win = View().layout_(VLayout(
 	GridLayout.rows(sliders, numbers),
-	[alist = ListView().items_(audiobuses.keys.asArray.sort).action_({ |v|
+	[alist = ListView().action_({ |v|
 		listAction.(audiobuses[v.item].value)
 	}), s:1],
-	[clist = ListView().items_(buses.keys.asArray.sort).action_({ |v|
+	[clist = ListView().action_({ |v|
 		listAction.(buses[v.item].value)
 	}), s:2]
 ));
 win.onClose = { synth.free; func.free };
 
-clist.valueAction = 0;
 
 win
+
