@@ -63,7 +63,7 @@ SynthDef(\threeStateToggle, {
 
 
 	//Trig at double + long time, filter out zeroes
-	btnState = Latch.kr(btnState, Impulse.kr(0) + buttonPressed.not + Trig1.kr(timer > longTime)).poll;
+	btnState = Latch.kr(btnState, Impulse.kr(0) + buttonPressed.not + Trig1.kr(timer > longTime));
 
 	Out.kr(\outbus.kr, btnState);
 
