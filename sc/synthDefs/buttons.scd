@@ -77,8 +77,15 @@ SynthDef(\simpleButton, {
 SynthDef(\nodePauseController, {
 	var sig = In.kr(\inbus.kr(0));
 
-	Pause.kr(sig.composeBinaryOp('!=', 2), \synth1.kr(0));
-	Pause.kr(sig.composeBinaryOp('!=', 4), \synth2.kr(0));
-	Pause.kr(sig.composeBinaryOp('!=', 8), \synth3.kr(0));
+	Pause.kr(sig.composeBinaryOp('==', 2), \synth1.kr(0));
+	Pause.kr(sig.composeBinaryOp('==', 4), \synth2.kr(0));
+	Pause.kr(sig.composeBinaryOp('==', 8), \synth3.kr(0));
 
+}).add;
+
+SynthDef(\bubbleUtils, {
+	var trig = DigitalIn.kr(\pin.kr(0));
+	var save = Trig.kr(trig);
+    var quit = (Sweep.kr(save) * trig) > 1.5;
+    BubbleUtils.kr(save, 1, quit)
 }).add;

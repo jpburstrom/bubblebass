@@ -101,9 +101,11 @@ fork {
 	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp], ~groups.input);
 	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
 	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.input);
+	//Save/Load/Quit
+	~synths[\bubbleUtils] = Synth(\bubbleUtils, [\pin, 12], ~groups.input);
+
 	~synths[\leds] = Synth(\ledBus, [\inbus, ~ctlBus[\leds]], ~groups.output);
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
-
 
 	//Three routing defs, red green blue
 	~synths[\trillRouting] = nil ! 3;
@@ -148,11 +150,13 @@ fork {
 			\in, ~audioBus[\main].subBus(i),
 			\out, ~audioBus[\main].subBus(i),
 			\imuBus, ~ctlBus[\imuPitch], //pitch
-			\trillBus, ~ctlBus[\trillMTRed][i],
+			\trillBus, ~ctlBus[\trillRed][i],
 			\preamp, 3
 		], ~groups.level, \addToTail);
 
 	};
+
+
 
 	//TODO Map synths to buses
 
