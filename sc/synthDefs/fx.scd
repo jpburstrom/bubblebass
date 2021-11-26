@@ -62,6 +62,28 @@ SynthDef(\compressor, {
 
 	//TODO compress snd
 	//TODO makeup gain
+	//TODO replaceOut
+
 
 	Out.ar(\out.kr(0), snd);
-});
+}).add;
+
+
+//TODO saw filter thing
+SynthDef(\pitchSawFilter, {
+	var sig = In.ar(\in.kr(0), 1);
+	var trill = In.kr(\trillBus.kr(0), 5);
+	var pitch = In.kr(\pitchBus.kr(0), 1).lag(0.01);
+	var trillFreq = trill[2..3];
+	var amp = trill[0].lag(0.01) * \gain.kr(1);
+	var mul = 4 * trillFreq.mean.lag(3);
+	var freq = (LFNoise1.ar(TRand.kr(0.05, 1.0, trill[4]), mul, mul + 1) * pitch).max(5).min(4800).lag(0.1);
+
+	sig = BPF.ar(sig, freq, 0.05);
+
+	Out.ar(3, sig * amp)
+
+}).add
+
+
+
