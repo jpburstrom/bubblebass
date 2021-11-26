@@ -38,6 +38,7 @@ audiobuses = (
 	spkr: Bus(),
 	direct: Bus(\audio, 2, 4),
 	main: { ~audioBus.main },
+	pitchTracker: { ~audioBus.pitchTracker },
 	input: Bus('audio', 4, 4);
 
 );

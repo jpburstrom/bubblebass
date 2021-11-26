@@ -37,12 +37,15 @@ SynthDef(\volume, {
 	var trill = In.kr(\trillBus.kr(0), 1);
 	var imuPitch = In.kr(\imuBus.kr(0), 1);
 
+	snd = snd * \preamp.ir(1);
+
 	//Single-finger control
 	snd = snd * trill; //TODO lag
 	snd = snd * 2.pow(imuPitch.linlin(-0.3, 0.4, -1, 1)); //TODO wider zero
 
-	Out.ar(\out.kr(0), snd);
-});
+	ReplaceOut.ar(\out.kr(0), snd);
+}).add;
+
 
 //FIXME
 SynthDef(\compressor, {

@@ -1,32 +1,41 @@
-~isBela = Platform.architecture == \AArch64;
-if (~isBela.not and: { ~belaServer.isNil }) {
-	~belaServer = Server.remote(\bela, NetAddr("bela", 57110), ServerOptions());
-	~belaServer.notify = true;
-	~belaServer.startAliveThread
+var clock = TempoClock.default;
+var isRendering = false;
+if (Server.default == Server.named[\ScoreDummy]) {
+	isRendering = true;
+	~server = Server.default;
+} {
+	~isBela = Platform.architecture == \AArch64;
+	if (~isBela.not and: { ~belaServer.isNil }) {
+		~belaServer = Server.remote(\bela, NetAddr("bela", 57110), ServerOptions());
+		~belaServer.notify = true;
+		~belaServer.startAliveThread
+	};
+
+	Server.default = ~belaServer;
+	~server = Server.default;
+	~server.options.reservedNumControlBusChannels = 256;
+	~server.options.maxLogins = 2;
 };
 
-Server.default = ~belaServer;
-~server = Server.default;
-~server.options.reservedNumControlBusChannels = 256;
-~server.options.maxLogins = 2;
-
-fork {
+{
 
 	//Respawn everything - set to false to not respawn trill synth
 	//when working interactively/remotely
 	//(because it crashes when respawning)
 	var respawnAll = ~respawnAll ? false;
 
-	if (respawnAll) {
+	if (respawnAll and: { isRendering.not } ) {
 		~server.freeAll;
 		~server.initTree;
 		~server.notify = true;
 		~server.startAliveThread;
 	};
 
+	clock.debug("respawn");
 
 	//SynthDefs
 	"synthDefs/*.scd".resolveRelative.pathMatch.do(_.load);
+
 	~server.sync;
 
 	//Let's handle indexes ourselves for now
@@ -64,12 +73,16 @@ fork {
 	};
 
 	~audioBus = (
-		main: Bus.audio(s, 4);
+		main: Bus.audio(s, 4),
+		pitchTracker: Bus.audio(s, 4)
 	);
 
 	//Allocate groups
 	if (respawnAll or: ~groups.isNil or: { ~groups[\input].isPlaying.not }) {
-		~groups.do(_.free);
+		if (isRendering.not) {
+			~groups.do(_.free);
+		};
+
 		~groups = ();
 		~synths = ();
 		s.makeBundle(nil, {
@@ -79,6 +92,7 @@ fork {
 		});
 	};
 	s.sync;
+
 
 	//Avoid respawning trill synth if possible
 	~synths.keysValuesDo { |k, v|
@@ -135,19 +149,18 @@ fork {
 
 	4.do { |i|
 
-
-
-		~synths[\pitchTracker][i] = Synth(\pitchTracker, [
-			\in, ~audioBus.main.subBus(i),
-			\out, ~ctlBus.pitch.subBus(i),
-			\ffreq, #[32.7, 48.99, 73.41, 110][i]
-		], ~groups.analysis, \addToTail);
-
 		~synths[\envFollow][i] = Synth(\envFollow, [
 			\in, ~audioBus.main.subBus(i),
 			\out, ~ctlBus.envFollow.subBus(i),
 		], ~groups.analysis, \addToTail);
 
+		~synths[\pitchTracker][i] = Synth(\pitchTrackerKr, [
+			\in, ~audioBus.main.subBus(i),
+			\out, ~audioBus.pitchTracker.subBus(i),
+			\inAmp, ~ctlBus.envFollow.subBus(i),
+			\outPitch, ~ctlBus.pitch.subBus(i),
+			\ffreq, #[32.7, 48.99, 73.41, 110][i]
+		], ~groups.analysis, \addToTail);
 
 		~synths[\volume][i] = Synth(\volume, [
 			\in, ~audioBus[\main].subBus(i),
@@ -170,4 +183,5 @@ fork {
 
 
 	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0, \directOut, 2], ~groups.output);
-}
+
+}.forkIfNeeded;
