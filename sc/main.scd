@@ -82,12 +82,14 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		if (isRendering.not) {
 			~groups.do(_.free);
 		};
-
 		~groups = ();
 		~synths = ();
 		s.makeBundle(nil, {
-			#[input, analysis, fx1, fx2, fx3, fx4, level, output].do { |key|
-				~groups[key] = Group(addAction: \addToTail).register(true);
+			#[global, setup, play].do {|key|
+				~groups[key] = Group(s, \addToTail);
+			};
+			#[input, analysis, prefx, level, postfx, output].do { |key|
+				~groups[key] = Group(~groups[\play],  \addToTail).register(true);
 			}
 		});
 	};
@@ -104,21 +106,28 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 
 	if (respawnAll or: ~synths[\trillInput].isPlaying.not) {
-		~synths[\trillInput] = Synth(\trillInput, ~ctlBus.trill.collect({ |bus, i| ["out%".format(i), bus] }).flatten, ~groups.input).register(true);
+		~synths[\trillInput] = Synth(\trillInput, ~ctlBus.trill.collect({ |bus, i| ["out%".format(i), bus] }).flatten, ~groups.global).register(true);
 	};
+
+	//----GLOBAL------//
+
+
+	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.global);
+	~synths[\setupController] = Synth(\nodePauseController2, [
+		\inbus, ~ctlBus[\btnSwitch], \node1, ~groups[\play], \node2, ~groups[\setup]
+	], ~groups.global);
+
+	//Save/Load/Quit
+	~synths[\bubbleUtils] = Synth(\bubbleUtils, [\pin, 12], ~groups.global);
 
 	//Audio input
 	~synths[\bbIn] = Synth(\bbIn, [\out, ~audioBus.main], ~groups.input);
 	//Input from motion sensor
 	~synths[\imuInput] = Synth(\imuInput, [\out, ~ctlBus.imu], ~groups.input);
 
-	//Save/Load/Quit
-	~synths[\bubbleUtils] = Synth(\bubbleUtils, [\pin, 12], ~groups.input);
-
 	//Keys and buttons
 	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp, \nullbus, ~ctlBus[\null]], ~groups.input);
 	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
-	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.input);
 
 	~synths[\leds] = Synth(\ledBus, [\inbus, ~ctlBus[\leds]], ~groups.output);
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
@@ -138,12 +147,12 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 	//Input from keyUp button, pausing inactive routing synthDefs
 	~synths[\nodePauseController] = Synth(\nodePauseController,
-		[#[synth1, synth2, synth3, inbus], ~synths[\trillRouting] ++ ~ctlBus.keyUp].flop.flat,
+		[#[node1, node2, node3, inbus], ~synths[\trillRouting] ++ ~ctlBus.keyUp].flop.flat,
 		~groups.input, \addToTail
 	);
 
 	//Placeholders for synths
-	#[pitchTracker, envFollow, volume].do { |key|
+	#[pitchTracker, envFollow, volume, saw].do { |key|
 		~synths[key] = nil ! 4;
 	};
 
@@ -162,6 +171,14 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\ffreq, #[32.7, 48.99, 73.41, 110][i]
 		], ~groups.analysis, \addToTail);
 
+		~synths[\saw][i] = Synth(\pitchSawFilter, [
+			\in, ~audioBus.pitchTracker.subBus(i),
+			\out, ~audioBus[\main].subBus(i),
+			\trillBus, ~ctlBus.trillGreen[i],
+			\pitchBus, ~ctlBus.pitch.subBus(i),
+			\gain, 16
+		], ~groups.prefx, \addToTail);
+
 		~synths[\volume][i] = Synth(\volume, [
 			\in, ~audioBus[\main].subBus(i),
 			\out, ~audioBus[\main].subBus(i),
@@ -171,6 +188,20 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		], ~groups.level, \addToTail);
 
 	};
+
+	//------------FX-----------------
+
+
+	//Red 1-4
+	~synths[\compressor] = Synth(\compressor4x, [
+		\in, ~audioBus[\main],
+		\trillBus, ~ctlBus[\trillRed][0],
+		\ampBus, ~ctlBus[\envFollow],
+		\ratio, 4,
+		\knee, 6,
+		\dbHi, 0,
+		\dbLo, -32
+	], ~groups.prefx, \addToTail);
 
 
 
