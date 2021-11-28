@@ -136,7 +136,6 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	~synths[\trillRouting] = nil ! 3;
 	#[trillRed, trillGreen, trillBlue].do { |key, i|
 		~synths[\trillRouting][i] = Synth(\trillRouting, [
-			\btnBus, ~ctlBus.keyUp,
 			//Use first buses, output on all of them (4 x 5 ch)
 			\trillBus, ~ctlBus.trill[0], //first trill bus
 			\out, ~ctlBus[key][0],
