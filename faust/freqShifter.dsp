@@ -9,6 +9,6 @@ import("stdfaust.lib");
 import("FrequencyShifter.lib");
 
 shift = hslider("Shift [unit:hz]", 0.0, -10000., 10000., 0.001);
-filterFreq = (5, ma.neg(shift)) : max : si.smoo;
+filterFreq = (5, ma.neg(shift)) : max;
 
 process(x) = x : fi.highpass3e(filterFreq) : ssb(shift);
