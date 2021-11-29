@@ -15,6 +15,7 @@ var softSnapScale = { |val, start=1, end=8, curve=4|
 	IEnvGen.kr(env, val);
 };
 
+
 SynthDef(\combShifter, {
 	var snd = In.ar(\in.kr(0), 4);
 	var trill = In.kr(\trillBus.kr(0), 5);
@@ -29,6 +30,33 @@ SynthDef(\combShifter, {
 	snd = snd + DelayC.ar(snd, 0.1, (pitch * 8).reciprocal * pitchmul, amt);
 	Out.ar(\out.kr(0), snd);
 }).add;
+
+SynthDef(\freqShift, {
+	var snd = In.ar(0, 4);
+	var trill = In.kr(\trillBus.kr(0), 5);
+	var amp = In.kr(\envFollowBus.kr(0), 4);
+	var roll = In.kr(\imuBus.kr(0), 1);
+	var freq = trill[0].lincurve(0, 1, 0, -1000); //Test
+
+	FreqShift.ar(snd, 0);
+
+	Out.ar(\out.kr, DC.ar);
+}).add;
+
+/*
+{ Out.ar(4, SinOsc.ar * 0.1) }.play(addAction: \addToTail)
+x = List();
+(
+
+x.add(Synth(\combShifter), ~groups.fx1);
+x.add(Synth(\freqShift), ~groups.fx1);
+)
+x.do(_.free)
+
+~synths.keys
+
+~synths[\keyDn].do(_.free)
+*/
 
 
 //FIXME
