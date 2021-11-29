@@ -77,6 +77,10 @@ SynthDef(\simpleButton, {
 	Out.kr(\outbus.kr, DigitalIn.kr(\pin.kr(0)));
 }).add;
 
+SynthDef(\trigButton, {
+	Out.kr(\outbus.kr, Trig.kr(DigitalIn.kr(\pin.kr(0))));
+}).add;
+
 //Get input from threeState SynthDefs above, pause synthdefs according to active state
 SynthDef(\nodePauseController, {
 	var sig = In.kr(\inbus.kr(0));
