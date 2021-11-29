@@ -31,16 +31,19 @@ SynthDef(\combShifter, {
 	Out.ar(\out.kr(0), snd);
 }).add;
 
-SynthDef(\freqShift, {
+SynthDef(\freqShiftx4, {
 	var snd = In.ar(0, 4);
-	var trill = In.kr(\trillBus.kr(0), 5);
-	var amp = In.kr(\envFollowBus.kr(0), 4);
-	var roll = In.kr(\imuBus.kr(0), 1);
-	var freq = trill[0].lincurve(0, 1, 0, -1000); //Test
+	var yaw = In.kr(\imuBus.kr(0), 1);
+	var lpFast = LPF.kr(yaw, 1);
+	var lpSlow = LPF.kr(yaw, 0.1);
+	var diff = (lpFast - lpSlow);
+	var freq = diff.linlin(0, 0.2, -100, 100);
 
-	FreqShift.ar(snd, 0);
+	var fx = BLowCut.ar(snd, freq.neg.max(5));
 
-	Out.ar(\out.kr, DC.ar);
+	//fx = FreqShift.ar(fx, freq);
+
+	//ReplaceOut.ar(\out.kr, snd);
 }).add;
 
 /*
@@ -109,3 +112,4 @@ SynthDef(\allPass, {
 	snd = snd + BAllPass.ar(snd, imuFreq, 1);
 	ReplaceOut.ar(\out.kr(0), snd);
 }).add;
+
