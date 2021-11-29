@@ -31,10 +31,17 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~server.startAliveThread;
 	};
 
-	clock.debug("respawn");
+	//Buffers used for parameter mapping
+	if (isRendering.not) {
+		~buffers.do(_.free);
+	};
+	~buffers = "buffers.scd".loadRelative[0];
+	~buffers.addMapping(\imuPitchAmp, -0.4, 0.3);
+
 
 	//SynthDefs
 	"synthDefs/*.scd".resolveRelative.pathMatch.do(_.load);
+
 
 	~server.sync;
 
@@ -60,6 +67,17 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		pitch: Bus('control', 88, 4),
 		envFollow: Bus('control', 92, 4),
 		leds: Bus('control', 96, 3),
+
+		//---SETUP---
+		//100-119: \trillRoutingSetup
+
+		imuCalibrate: Bus('control', 120, 1),
+		imuSave: Bus('control', 121, 1),
+
+		imuPitchAmp: Bus('control', 128, 1),
+
+
+
 		null: Bus('control', 224, 32)
 	);
 	//Make 4-item arrays of buses
@@ -70,6 +88,10 @@ if (Server.default == Server.named[\ScoreDummy]) {
 				Bus('control', offset + (5 * ((index * 4) + num)), 5);
 			}
 		}
+	};
+
+	~ctlBus[\trillRoutingSetup] = 4.collect { |num|
+		Bus('control', 100 + (5 * num), 5);
 	};
 
 	~audioBus = (
@@ -120,10 +142,49 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	//Save/Load/Quit
 	~synths[\bubbleUtils] = Synth(\bubbleUtils, [\pin, 12], ~groups.global);
 
+	//Input from motion sensor
+	~synths[\imuInput] = Synth(\imuInput, [
+		\out, ~ctlBus.imu,
+		\calibrateBus, ~ctlBus.imuCalibrate,
+		\saveBus, ~ctlBus.imuSave
+	], ~groups.global);
+
+	//------------SETUP-------------//
+
+	~synths[\trillRoutingSetup] = Synth(\trillRouting, [
+		//Use first buses, output on all of them (4 x 5 ch)
+		\trillBus, ~ctlBus.trill[0], //first trill bus
+		\out, ~ctlBus[\trillRoutingSetup][0],
+		\nullbus, ~ctlBus[\null]
+	], ~groups.setup, \addToTail);
+
+	~synths[\testTone] = nil ! 4;
+
+	4.do { |i|
+		var freq = (36 + (i * 7)).midicps;
+		~synths[\testTone][i] = Synth(\testTone, [
+			\freq, freq,
+			\out, 0, //Direct stereo output
+			\trillBus, ~ctlBus[\trillRoutingSetup][i]
+		], ~groups.setup, \addToTail);
+	};
+
+	~synths[\imuCalibrate] = Synth(\trigButton, [
+		\pin, 13, \outbus, ~ctlBus.imuCalibrate
+	], ~groups.setup, \addToTail);
+
+	~synths[\imuSave] = Synth(\trigButton, [
+		\pin, 15, \outbus, ~ctlBus.imuSave
+	], ~groups.setup, \addToTail);
+
+	~synths[\imuLed] = Synth(\ledImuToBus, [
+		\imubus, ~ctlBus.imu, \out, ~ctlBus[\leds]
+	], ~groups.setup, \addToTail);
+
+	//------------PLAY--------------//
+
 	//Audio input
 	~synths[\bbIn] = Synth(\bbIn, [\out, ~audioBus.main], ~groups.input);
-	//Input from motion sensor
-	~synths[\imuInput] = Synth(\imuInput, [\out, ~ctlBus.imu], ~groups.input);
 
 	//Keys and buttons
 	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp, \nullbus, ~ctlBus[\null]], ~groups.input);
@@ -149,6 +210,12 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		[#[node1, node2, node3, inbus], ~synths[\trillRouting] ++ ~ctlBus.keyUp].flop.flat,
 		~groups.input, \addToTail
 	);
+
+	//IMU mapping
+	~synths[\imuPitchAmp] = ~buffers.getSynth(\imuPitchAmp, [
+		\in, ~ctlBus[\imuPitch],
+		\out, ~ctlBus[\imuPitchAmp]
+	], ~groups.input, \addToTail);
 
 	//Placeholders for synths
 	#[pitchTracker, envFollow, volume, saw].do { |key|
@@ -181,7 +248,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~synths[\volume][i] = Synth(\volume, [
 			\in, ~audioBus[\main].subBus(i),
 			\out, ~audioBus[\main].subBus(i),
-			\imuBus, ~ctlBus[\imuPitch], //pitch
+			\imuPitchAmp, ~ctlBus[\imuPitchAmp], //pitch
 			\trillBus, ~ctlBus[\trillRed][i],
 			\preamp, 3
 		], ~groups.level, \addToTail);
@@ -192,6 +259,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 
 	//Red 1-4
+	/*
 	~synths[\compressor] = Synth(\compressor4x, [
 		\in, ~audioBus[\main],
 		\trillBus, ~ctlBus[\trillRed][0],
@@ -201,6 +269,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		\dbHi, 0,
 		\dbLo, -32
 	], ~groups.prefx, \addToTail);
+	*/
 
 
 
