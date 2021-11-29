@@ -87,9 +87,10 @@ SynthDef(\pitchSawFilter, {
 
 	sig = BPF.ar(sig, freq, 0.05);
 
-	Out.ar(3, sig * amp)
+	Out.ar(\out.kr(0), sig * amp)
 
 }).add
+
 
 
 
