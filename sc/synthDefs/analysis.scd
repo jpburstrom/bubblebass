@@ -46,9 +46,10 @@ SynthDef(\pitchTrackerKr, {
 	var sig, insig = In.ar(\in.kr(0), 1);
 	var test;
 	var maxFreq = 640;
+	var aaFilterFreq = 500; //Control sample rate / 3
 
 	//Prefilter
-	sig = BPF.kr(A2K.kr(LPF.ar(insig, 1000)), \ffreq.kr(32.7), 0.06); //Too narrow rq?
+	sig = BPF.kr(A2K.kr(LPF.ar(insig, aaFilterFreq)), \ffreq.kr(32.7), 0.06); //Too narrow rq?
 	//TODO add an adaptive filter - check the GR300 specs
 
 	//Rectify
