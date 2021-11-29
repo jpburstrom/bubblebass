@@ -249,6 +249,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\gain, 16
 		], ~groups.prefx, \addToTail);
 
+
 		~synths[\volume][i] = Synth(\volume, [
 			\in, ~audioBus[\main].subBus(i),
 			\out, ~audioBus[\main].subBus(i),
@@ -260,6 +261,20 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	};
 
 	//------------FX-----------------
+	#[tanhFx].do { |key|
+		~synths[key] = nil ! 4;
+	};
+
+	4.do { |i|
+
+		~synths[\tanhFx][i] = Synth(\tanhLimiter, [
+			\in, ~audioBus[\main].subBus(i),
+			\out, ~audioBus[\main].subBus(i),
+			\trillBus, ~ctlBus.trillRed[i]
+		], ~groups.postfx, \addToTail);
+	};
+
+
 
 
 	//Red 1-4
