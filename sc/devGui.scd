@@ -46,7 +46,11 @@ win = Window().front.layout_(VLayout(
 			(path +/+ "main.scd").load;
 		}),
 
+
 	),
+	Button().states_([["Mute off"], ["Mute on"]]).action_({ |btn|
+		~synths[\bbOut].postln.run(btn.value == 0);
+	}),
 	StaticText().string_("IMU"),
 	HLayout(
 		Button().states_([["Calibrate"]]).action_({
