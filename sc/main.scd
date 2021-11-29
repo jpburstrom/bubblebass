@@ -17,6 +17,8 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	~server.options.maxLogins = 2;
 };
 
+
+
 {
 
 	//Respawn everything - set to false to not respawn trill synth
@@ -184,7 +186,9 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	//------------PLAY--------------//
 
 	//Audio input
-	~synths[\bbIn] = Synth(\bbIn, [\out, ~audioBus.main], ~groups.input);
+	~synths[\bbIn] = Synth(\bbIn, [
+		\out, ~audioBus.main, \directOut, 2
+	], ~groups.input);
 
 	//Keys and buttons
 	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp, \nullbus, ~ctlBus[\null]], ~groups.input);
@@ -281,6 +285,6 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 
 
-	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0, \directOut, 2], ~groups.output);
+	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0], ~groups.output);
 
 }.forkIfNeeded;

@@ -2,6 +2,8 @@ SynthDef(\bbIn, {
 
 	var snd = SoundIn.ar((0..3)); //Hardcoded but should never change, right?
 
+	Out.ar(\directOut.kr(2), snd);
+
 	Out.ar(\out.kr(0), snd);
 }).add;
 
@@ -12,7 +14,8 @@ SynthDef(\bbOut, {
 	});
 
 	//Direct out, route to 2-5
-	Out.ar(\directOut.kr(2), in);
+	//FIXME: This should probably be taken from direct input
+	//Out.ar(\directOut.kr(2), in);
 	//Speaker out
 	Out.ar(\out.kr(0), out);
 }).add;
