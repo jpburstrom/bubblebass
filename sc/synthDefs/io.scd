@@ -13,6 +13,8 @@ SynthDef(\bbOut, {
 		Pan2.ar(in[i], NamedControl.kr("pan%".format(i+1)));
 	});
 
+	out[0] = out[0].neg; //Sounds better (maybe faulty wiring?) to invert phase on first channel
+
 	//Direct out, route to 2-5
 	//FIXME: This should probably be taken from direct input
 	//Out.ar(\directOut.kr(2), in);
