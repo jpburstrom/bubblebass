@@ -68,7 +68,7 @@ SynthDef(\volume, {
 	snd = snd * \preamp.ir(1);
 
 	//Single-finger control
-	snd = snd * trill.lag(\trillLag.kr(0.25));
+	snd = snd * trill.cubed.lag(\trillLag.kr(0.25));
 	snd = snd * imuPitchAmp.lag(0.1);
 
 	ReplaceOut.ar(\out.kr(0), snd);
