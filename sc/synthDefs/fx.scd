@@ -35,13 +35,13 @@ SynthDef(\combShifter, {
 SynthDef(\volume, {
 	var snd = In.ar(\in.kr(0), 1);
 	var trill = In.kr(\trillBus.kr(0), 1);
-	var imuPitch = In.kr(\imuBus.kr(0), 1);
+	var imuPitchAmp = In.kr(\imuPitchAmp.kr(0), 1);
 
 	snd = snd * \preamp.ir(1);
 
 	//Single-finger control
-	snd = snd * trill; //TODO lag
-	snd = snd * 2.pow(imuPitch.linlin(-0.3, 0.4, -1, 1)); //TODO wider zero
+	snd = snd * trill.lag(\trillLag.kr(0.25));
+	snd = snd * imuPitchAmp.lag(0.1);
 
 	ReplaceOut.ar(\out.kr(0), snd);
 }).add;
