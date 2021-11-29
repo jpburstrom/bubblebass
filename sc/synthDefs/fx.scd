@@ -75,28 +75,6 @@ SynthDef(\volume, {
 }).add;
 
 
-//FIXME
-SynthDef(\compressor, {
-	var snd = In.ar(\in.kr(0), 4);
-	var trill = In.kr(\trillBus.kr(0) + 1, 2);
-	var imuPitch = In.kr(\imuBus.kr(0), 1);
-	var amp = In.kr(\envFollowBus.kr(0), 4);
-
-	//TODO check trill hi, lo order
-	//TODO set range
-	//TODO lag
-	var compdb = (trill[0] - trill[1]).linlin(0, 0.5, \dbHi.ir(0), \dbLo.ir(-32));
-	var speed = trill[1];
-
-	//TODO compress snd
-	//TODO makeup gain
-	//TODO replaceOut
-
-
-	Out.ar(\out.kr(0), snd);
-}).add;
-
-
 //TODO saw filter thing
 SynthDef(\pitchSawFilter, {
 	var sig = In.ar(\in.kr(0), 1);
