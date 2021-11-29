@@ -1,6 +1,6 @@
 SynthDef(\imuInput, {
 	var calibrate = \calibrate.tr(0) + In.kr(\calibrateBus.kr(0));
-	var save = \save.tr(0) + In.kr(\saveBus.kr(0))
+	var save = \save.tr(0) + In.kr(\saveBus.kr(0));
 	var data = BNO.orientationKr(calibrate, \load.tr(0), save);
 	Out.kr(\out.kr(0), data);
 }).add;
