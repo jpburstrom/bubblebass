@@ -20,8 +20,6 @@ SynthDef(\ledCount3, {
 	FreeSelf.kr(Impulse.kr(0))
 }).add;
 
-
-
 SynthDef(\ledCount7, {
 	var count = \count.ir(0);
 	rgb.do { |pin, i|
@@ -46,6 +44,16 @@ SynthDef(\ledLog2ToBus, {
 	};
 	Out.kr(\out.kr(0), Select.kr(Changed.kr(val), [In.kr(\out.kr, 3), outvals]));
 }).add;
+
+SynthDef(\ledImuToBus, {
+	var val = In.kr(\imubus.kr(0), 3);
+	val = val.abs;
+	val = LFPulse.kr(val.linlin(0, 0.5, 40, 0), 0, 0.1);
+	rgb.do { |pin, i|
+		DigitalOut.kr(pin, val[i])
+	};
+}).add;
+
 )
 /*
 a = Bus(\control, 127, 1);
