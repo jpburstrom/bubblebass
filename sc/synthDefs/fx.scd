@@ -103,3 +103,9 @@ SynthDef(\tanhLimiter, {
 }).add;
 
 
+SynthDef(\allPass, {
+	var snd = In.ar(\in.kr(0), 4);
+	var imuFreq = In.kr(\imuRollFreq.kr(0), 1).lag(0.3);
+	snd = snd + BAllPass.ar(snd, imuFreq, 1);
+	ReplaceOut.ar(\out.kr(0), snd);
+}).add;

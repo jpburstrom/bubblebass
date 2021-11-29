@@ -39,7 +39,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	};
 	~buffers = "buffers.scd".loadRelative[0];
 	~buffers.addMapping(\imuPitchAmp, -0.4, 0.3);
-
+	~buffers.addMapping(\imuRollFreq, -0.2, 0.2, 0, \allPassCurve);
 
 	//SynthDefs
 	"synthDefs/*.scd".resolveRelative.pathMatch.do(_.load);
@@ -77,6 +77,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		imuSave: Bus('control', 121, 1),
 
 		imuPitchAmp: Bus('control', 128, 1),
+		imuRollFreq: Bus('control', 129, 1),
 
 
 
@@ -221,6 +222,13 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		\out, ~ctlBus[\imuPitchAmp]
 	], ~groups.input, \addToTail);
 
+
+	//IMU mapping
+	~synths[\imuRollFreq] = ~buffers.getSynth(\imuRollFreq, [
+		\in, ~ctlBus[\imuRoll],
+		\out, ~ctlBus[\imuRollFreq]
+	], ~groups.input, \addToTail);
+
 	//Placeholders for synths
 	#[pitchTracker, envFollow, volume, saw].do { |key|
 		~synths[key] = nil ! 4;
@@ -241,6 +249,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\ffreq, #[32.7, 48.99, 73.41, 110][i]
 		], ~groups.analysis, \addToTail);
 
+		/*
 		~synths[\saw][i] = Synth(\pitchSawFilter, [
 			\in, ~audioBus.pitchTracker.subBus(i),
 			\out, ~audioBus[\main].subBus(i),
@@ -248,7 +257,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\pitchBus, ~ctlBus.pitch.subBus(i),
 			\gain, 16
 		], ~groups.prefx, \addToTail);
-
+		*/
 
 		~synths[\volume][i] = Synth(\volume, [
 			\in, ~audioBus[\main].subBus(i),
@@ -261,6 +270,14 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	};
 
 	//------------FX-----------------
+
+
+	~synths[\allPass] = Synth(\allPass, [
+		\in, ~audioBus[\main],
+		\out, ~audioBus[\main],
+		\imuRollFreq, ~ctlBus[\imuRollFreq]
+	], ~groups.postfx, \addToTail);
+
 	#[tanhFx].do { |key|
 		~synths[key] = nil ! 4;
 	};
@@ -273,8 +290,6 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\trillBus, ~ctlBus.trillRed[i]
 		], ~groups.postfx, \addToTail);
 	};
-
-
 
 
 	//Red 1-4
