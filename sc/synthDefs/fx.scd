@@ -94,7 +94,7 @@ SynthDef(\pitchSawFilter, {
 SynthDef(\tanhLimiter, {
 	var snd = In.ar(\in.kr(0), 1);
 	var trill = In.kr(\trillBus.kr(0) + 2, 2);
-	var val = (trill[0] - trill[1]).abs.linlin(0, 0.75, 8, 2);
+	var val = (trill[0] - trill[1]).abs.linlin(0, 0.75, 5, 2);
 	//val.poll(1, "tanh");
 
 	snd = (snd * val).tanh / val;
