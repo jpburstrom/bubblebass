@@ -15,9 +15,12 @@ SynthDef(\bbOut, {
 
 	out[0] = out[0].neg; //Sounds better (maybe faulty wiring?) to invert phase on first channel
 
+	out = BLowCut.ar(out, 32, 2);
+
 	//Direct out, route to 2-5
 	//FIXME: This should probably be taken from direct input
 	//Out.ar(\directOut.kr(2), in);
 	//Speaker out
 	Out.ar(\out.kr(0), out);
 }).add;
+
