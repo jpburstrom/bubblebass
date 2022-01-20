@@ -38,9 +38,11 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~buffers.do(_.free);
 	};
 	~buffers = "buffers.scd".loadRelative[0];
-	~buffers.addMapping(\imuPitchAmp, -0.4, 0.3);
+	//FIXME
+	//For some reason the first loaded buffer doesn't work, so we load a dummy here
+	~buffers.addMapping(\dummy, -0.2, 0.2, 0, \allPassCurve);
 	~buffers.addMapping(\imuRollFreq, -0.2, 0.2, 0, \allPassCurve);
-
+	~buffers.addMapping(\imuPitchAmp, -0.4, 0.3);
 	//SynthDefs
 	"synthDefs/*.scd".resolveRelative.pathMatch.do(_.load);
 
