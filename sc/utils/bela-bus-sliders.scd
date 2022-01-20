@@ -39,7 +39,8 @@ audiobuses = (
 	direct: Bus(\audio, 2, 4),
 	main: { ~audioBus.main },
 	pitchTracker: { ~audioBus.pitchTracker },
-	input: Bus('audio', 4, 4);
+	input: Bus('audio', 6, 4);
+
 
 );
 buses = ();
