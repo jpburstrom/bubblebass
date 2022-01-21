@@ -105,6 +105,15 @@ SynthDef(\tanhLimiter, {
 	ReplaceOut.ar(\out.kr(0), snd);
 }).add;
 
+SynthDef(\limiter, {
+	var snd = In.ar(\in.kr(0), 1);
+	var trill = In.kr(\trillBus.kr(0) + 2, 2);
+	var val = (trill[0] - trill[1]).abs.linlin(0, 0.75, 5, 1);
+	//Using a custom non-upsampled limiter here
+	//https://github.com/nhthn/supercollider-safety-limiter
+	snd = SafetyLimiter.ar(snd * val) / val;
+	ReplaceOut.ar(\out.kr(0), snd);
+}).add;
 
 SynthDef(\allPass, {
 	var snd = In.ar(\in.kr(0), 4);

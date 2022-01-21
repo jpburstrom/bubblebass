@@ -286,7 +286,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 	4.do { |i|
 
-		~synths[\tanhFx][i] = Synth(\tanhLimiter, [
+		~synths[\tanhFx][i] = Synth(\limiter, [
 			\in, ~audioBus[\main].subBus(i),
 			\out, ~audioBus[\main].subBus(i),
 			\trillBus, ~ctlBus.trillRed[i]
