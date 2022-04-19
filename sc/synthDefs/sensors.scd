@@ -22,7 +22,6 @@ SynthDef(\trillInput, {
 //Output: 3 buses (2ch, 2ch, 1ch) corresponding to 1-3 fingers,
 //3 fingers = trig
 
-
 //If trill[0] == 0, do nothing.
 //If going back to 0 during waitTime, cancel wait and do nothing
 //After checks, Set trill[0] to 0

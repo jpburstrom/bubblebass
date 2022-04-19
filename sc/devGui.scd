@@ -8,6 +8,7 @@ if (~belaServer.isNil) {
 	~respawnAll = true;
 	(path +/+ "main.scd").load;
 };
+
 win = Window().front.layout_(VLayout(
 	HLayout(
 		StaticText().string_("Select server"),
@@ -101,3 +102,6 @@ win.onClose = {
 	closePlotter.value;
 	updater.stop;
 }
+
+
+

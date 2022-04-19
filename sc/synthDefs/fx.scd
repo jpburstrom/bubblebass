@@ -121,4 +121,3 @@ SynthDef(\allPass, {
 	snd = snd + BAllPass.ar(snd, imuFreq, 1);
 	ReplaceOut.ar(\out.kr(0), snd);
 }).add;
-
