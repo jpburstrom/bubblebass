@@ -1,6 +1,6 @@
 SynthDef(\bbIn, {
 
-	var snd = SoundIn.ar((0..3)); //Hardcoded but should never change, right?
+	var snd = SoundIn.ar([0, 1, 3, 2]); //Hardcoded but should never change, right?
 
 	Out.ar(\directOut.kr(2), snd);
 
