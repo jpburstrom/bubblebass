@@ -1,0 +1,110 @@
+{
+	"name": "GR Pitch Tracker 4",
+	"filename": "pitchTracker4.dsp",
+	"version": "2.30.5",
+	"compile_options": "-lang cpp -es 1 -scal -ftz 0",
+	"library_list": ["/usr/local/share/faust/stdfaust.lib","/usr/local/share/faust/filters.lib","/usr/local/share/faust/maths.lib","/usr/local/share/faust/platform.lib","/usr/local/share/faust/basics.lib"],
+	"include_pathnames": ["/usr/local/share/faust","/usr/local/share/faust","/usr/share/faust",".","/Users/johannes/kod/bubblebass/faust"],
+	"inputs": 4,
+	"outputs": 8,
+	"meta": [ 
+		{ "author": "Johannes Burström (johannes@ljud.org)" },
+		{ "basics.lib/name": "Faust Basic Element Library" },
+		{ "basics.lib/version": "0.1" },
+		{ "compile_options": "-lang cpp -es 1 -scal -ftz 0" },
+		{ "copyright": "Johannes Burström" },
+		{ "description": "4-channel GR-300 style pitch tracker" },
+		{ "filename": "pitchTracker4.dsp" },
+		{ "filters.lib/dcblocker:author": "Julius O. Smith III" },
+		{ "filters.lib/dcblocker:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/dcblocker:license": "MIT-style STK-4.3 license" },
+		{ "filters.lib/lowpass0_highpass1": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/lowpass0_highpass1:author": "Julius O. Smith III" },
+		{ "filters.lib/lowpass:author": "Julius O. Smith III" },
+		{ "filters.lib/lowpass:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/lowpass:license": "MIT-style STK-4.3 license" },
+		{ "filters.lib/name": "Faust Filters Library" },
+		{ "filters.lib/pole:author": "Julius O. Smith III" },
+		{ "filters.lib/pole:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/pole:license": "MIT-style STK-4.3 license" },
+		{ "filters.lib/tf1:author": "Julius O. Smith III" },
+		{ "filters.lib/tf1:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/tf1:license": "MIT-style STK-4.3 license" },
+		{ "filters.lib/tf1s:author": "Julius O. Smith III" },
+		{ "filters.lib/tf1s:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/tf1s:license": "MIT-style STK-4.3 license" },
+		{ "filters.lib/tf21:author": "Julius O. Smith III" },
+		{ "filters.lib/tf21:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/tf21:license": "MIT-style STK-4.3 license" },
+		{ "filters.lib/version": "0.3" },
+		{ "filters.lib/zero:author": "Julius O. Smith III" },
+		{ "filters.lib/zero:copyright": "Copyright (C) 2003-2019 by Julius O. Smith III <jos@ccrma.stanford.edu>" },
+		{ "filters.lib/zero:license": "MIT-style STK-4.3 license" },
+		{ "licence": "GPL" },
+		{ "maths.lib/author": "GRAME" },
+		{ "maths.lib/copyright": "GRAME" },
+		{ "maths.lib/license": "LGPL with exception" },
+		{ "maths.lib/name": "Faust Math Library" },
+		{ "maths.lib/version": "2.3" },
+		{ "name": "GR Pitch Tracker 4" },
+		{ "platform.lib/name": "Generic Platform Library" },
+		{ "platform.lib/version": "0.1" },
+		{ "version": "0.1" }
+	],
+	"ui": [ 
+		{
+			"type": "vgroup",
+			"label": "GR Pitch Tracker 4",
+			"items": [ 
+				{
+					"type": "hslider",
+					"label": "ffreq1",
+					"address": "/GR_Pitch_Tracker_4/ffreq1",
+					"meta": [
+						{ "unit": "hz" }
+					],
+					"init": 32.7,
+					"min": 5,
+					"max": 20000,
+					"step": 0.001
+				},
+				{
+					"type": "hslider",
+					"label": "ffreq2",
+					"address": "/GR_Pitch_Tracker_4/ffreq2",
+					"meta": [
+						{ "unit": "hz" }
+					],
+					"init": 32.7,
+					"min": 5,
+					"max": 20000,
+					"step": 0.001
+				},
+				{
+					"type": "hslider",
+					"label": "ffreq3",
+					"address": "/GR_Pitch_Tracker_4/ffreq3",
+					"meta": [
+						{ "unit": "hz" }
+					],
+					"init": 32.7,
+					"min": 5,
+					"max": 20000,
+					"step": 0.001
+				},
+				{
+					"type": "hslider",
+					"label": "ffreq4",
+					"address": "/GR_Pitch_Tracker_4/ffreq4",
+					"meta": [
+						{ "unit": "hz" }
+					],
+					"init": 32.7,
+					"min": 5,
+					"max": 20000,
+					"step": 0.001
+				}
+			]
+		}
+	]
+}
