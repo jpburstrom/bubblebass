@@ -47,10 +47,10 @@ SynthDef(\ledLog2ToBus, {
 
 SynthDef(\ledImuToBus, {
 	var val = In.kr(\imubus.kr(0), 3);
-	val = val.abs;
-	val = LFPulse.kr(val.linlin(0, 0.5, 40, 0), 0, 0.1);
+	val = val.abs * 2; //.linlin(0, 0.5, 0, 1)
+	val = LFPulse.ar(50, 0, val);
 	rgb.do { |pin, i|
-		DigitalOut.kr(pin, val[i])
+		DigitalOut.ar(pin, val[i])
 	};
 }).add;
 
