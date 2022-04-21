@@ -232,7 +232,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	], ~groups.input, \addToTail);
 
 	//Placeholders for synths
-	#[pitchTracker, envFollow, volume, saw].do { |key|
+	#[envFollow, volume, saw].do { |key|
 		~synths[key] = nil ! 4;
 	};
 
@@ -243,6 +243,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\out, ~ctlBus.envFollow.subBus(i),
 		], ~groups.analysis, \addToTail);
 
+		/*
 		~synths[\pitchTracker][i] = Synth(\pitchTrackerKr, [
 			\in, ~audioBus.main.subBus(i),
 			\out, ~audioBus.pitchTracker.subBus(i),
@@ -251,15 +252,15 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\ffreq, #[32.7, 48.99, 73.41, 110][i]
 		], ~groups.analysis, \addToTail);
 
-		/*
 		~synths[\saw][i] = Synth(\pitchSawFilter, [
 			\in, ~audioBus.pitchTracker.subBus(i),
 			\out, ~audioBus[\main].subBus(i),
 			\trillBus, ~ctlBus.trillGreen[i],
 			\pitchBus, ~ctlBus.pitch.subBus(i),
-			\gain, 16
+			\gain, 1
 		], ~groups.prefx, \addToTail);
 		*/
+
 
 		~synths[\volume][i] = Synth(\volume, [
 			\in, ~audioBus[\main].subBus(i),
@@ -270,6 +271,16 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		], ~groups.level, \addToTail);
 
 	};
+
+	/*
+	~synths[\pitchTracker] = Synth(\pitchTrackerFaust, [
+		\in, ~audioBus.main,
+		\out, ~audioBus.pitchTracker,
+		\inAmp, ~ctlBus.envFollow,
+		\outPitch, ~ctlBus.pitch,
+		\ffreq, [32.7, 48.99, 73.41, 110]
+	], ~groups.analysis, \addToTail);
+	*/
 
 	//------------FX-----------------
 

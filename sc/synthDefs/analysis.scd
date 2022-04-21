@@ -35,10 +35,9 @@ SynthDef(\pitchTracker, {
 	Out.kr(\outPitch.kr(0), pitch);
 
 
-	Out.ar(\out.ar(0), sig * In.kr(\inAmp.kr(0), 1));
+	Out.ar(\out.kr(0), sig * In.kr(\inAmp.kr(0), 1));
 
 }).add;
-
 
 SynthDef(\pitchTrackerKr, {
 
@@ -78,8 +77,22 @@ SynthDef(\pitchTrackerKr, {
 	Out.kr(\outPitch.kr(0), pitch);
 
 
-	Out.ar(\out.ar(0), K2A.ar(sig) * In.kr(\inAmp.kr(0), 1));
+	Out.ar(\out.kr(0), K2A.ar(sig) * In.kr(\inAmp.kr(0), 1));
 
+}).add;
+
+
+SynthDef(\pitchTrackerFaust, {
+	var pitch, sig, insig = In.ar(\in.kr(0), 4);
+	var ffreq = \ffreq.kr([32.7, 48.99, 73.41, 110]);
+	var tracker = GRPitchTracker4.ar(
+		*(insig ++ ffreq)
+	);
+	//Group into 2 arrays: 4x pitch, 4x sawtooth wave
+	#pitch, sig = tracker.clump(2).flop;
+
+	Out.kr(\outPitch.kr(0), pitch);
+	Out.ar(\out.kr(0),  K2A.ar(sig) * In.kr(\inAmp.kr(0), 4));
 }).add;
 
 
