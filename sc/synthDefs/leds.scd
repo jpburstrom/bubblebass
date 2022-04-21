@@ -6,7 +6,6 @@ SynthDef(\allLedsOff, {
 	FreeSelf.kr(Impulse.kr(0))
 }).add;
 
-
 SynthDef(\allLedsOn, {
 	rgb.do { |i| DigitalOut.kr(i, 1) };
 	FreeSelf.kr(Impulse.kr(0))
@@ -31,8 +30,9 @@ SynthDef(\ledCount7, {
 
 SynthDef(\ledBus, {
 	var bus = In.kr(\inbus.ir(0), 3);
+	var reset = Changed.kr(In.kr(\resetBus.ir(0)));
 	rgb.do { |pin, i|
-		DigitalOut.kr(pin, bus[i])
+		DigitalOut.kr(pin, (bus[i] - reset).abs)
 	}
 }).add;
 
@@ -42,7 +42,8 @@ SynthDef(\ledLog2ToBus, {
 	outvals = 3.collect { |i|
 		BinaryOpUGen('==', i + 1, val)
 	};
-	Out.kr(\out.kr(0), Select.kr(Changed.kr(val), [In.kr(\out.kr, 3), outvals]));
+	//Out.kr(\out.kr(0), Select.kr(Changed.kr(val), [In.kr(\out.kr, 3), outvals]));
+	Out.kr(\out.kr(0), outvals);
 }).add;
 
 SynthDef(\ledImuToBus, {

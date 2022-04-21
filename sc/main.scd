@@ -197,7 +197,9 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp, \nullbus, ~ctlBus[\null]], ~groups.input);
 	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
 
-	~synths[\leds] = Synth(\ledBus, [\inbus, ~ctlBus[\leds]], ~groups.output);
+	~synths[\leds] = Synth(\ledBus,
+		[\inbus, ~ctlBus[\leds], \resetBus, ~ctlBus[\btnSwitch]],
+	~groups.output);
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
 
 	//Three routing defs, red green blue
