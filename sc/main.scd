@@ -228,10 +228,12 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 
 	//IMU mapping
+	/*
 	~synths[\imuRollFreq] = ~buffers.getSynth(\imuRollFreq, [
 		\in, ~ctlBus[\imuRoll],
 		\out, ~ctlBus[\imuRollFreq]
 	], ~groups.input, \addToTail);
+	*/
 
 	//Placeholders for synths
 	#[envFollow, volume, saw].do { |key|
@@ -287,19 +289,20 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	//------------FX-----------------
 
 
+	/*
 	~synths[\allPass] = Synth(\allPass, [
 		\in, ~audioBus[\main],
 		\out, ~audioBus[\main],
 		\imuRollFreq, ~ctlBus[\imuRollFreq]
 	], ~groups.postfx, \addToTail);
+	*/
 
-	#[tanhFx].do { |key|
+	[\preLimiterGain].do { |key|
 		~synths[key] = nil ! 4;
 	};
 
 	4.do { |i|
-
-		~synths[\tanhFx][i] = Synth(\limiter, [
+		~synths[\preLimiterGain][i] = Synth(\preLimiterGain, [
 			\in, ~audioBus[\main].subBus(i),
 			\out, ~audioBus[\main].subBus(i),
 			\trillBus, ~ctlBus.trillRed[i]
