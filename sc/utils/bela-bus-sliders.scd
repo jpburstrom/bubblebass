@@ -1,6 +1,6 @@
 //Display scope for bubblebass buses
 
-var win, sliders, numbers, synth, func, buses, audiobuses, clist, alist, listAction;
+var win, sliders, numbers, synth, func, buses, audiobuses, clist, alist, listAction, serverBootAction;
 
 listAction = { |bus|
 	synth.free; func.free;
@@ -45,8 +45,7 @@ audiobuses = (
 );
 buses = ();
 
-
-~belaServer.doWhenBooted {
+serverBootAction = {
 
 	~ctlBus.keysValuesDo({ |k, item|
 		if (item.isArray) {
@@ -61,7 +60,7 @@ buses = ();
 	clist.items_(buses.keys.asArray.sort);
 	clist.valueAction = 0;
 
-};
+}.inEnvir;
 
 
 sliders = 5.collect { Slider().orientation_(\vertical) };
@@ -77,8 +76,12 @@ win = View().layout_(VLayout(
 		listAction.(buses[v.item].value)
 	}), s:2]
 ));
-win.onClose = { synth.free; func.free };
+win.onClose = { synth.free; func.free; ServerBoot.remove(serverBootAction, ~belaServer) };
 
+ServerBoot.add(serverBootAction, ~belaServer);
+if (~belaServer.serverRunning) {
+	serverBootAction.value;
+};
 
 win
 

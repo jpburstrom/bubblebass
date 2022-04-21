@@ -24,34 +24,43 @@ win = Window().front.layout_(VLayout(
 			pp
 		}
 	),
-	/*
 	HLayout(
-		Button().states_([["Start scsynth"]]).action_({
-			"ssh root@bela make -C /root/Bela scsynthstart".unixCmdGetStdOut
-		}),
-		Button().states_([["Stop scsynth"]]).action_({
-			"ssh root@bela make -C /root/Bela scsynthstop".unixCmdGetStdOut
-		}),
+		Button().states_([["Server"]]).action_({
+			~belaServer.freeAll;
+			"ssh root@bela make -C /root/Bela scsynthstart &".unixCmd;
+		}.inEnvir),
+		Button().states_([["Startup"]]).action_({
+			~belaServer.freeAll;
+			"ssh root@bela systemctl start bela_startup &".unixCmd
+		}.inEnvir),
+		Button().states_([["Stop"]]).action_({ |b|
+			~belaServer.freeAll;
+			"ssh root@bela make -C /root/Bela stop &".unixCmd
+
+		}.inEnvir),
+		Button().states_([["HALT", Color.red]]).action_({ |b|
+			~belaServer.freeAll;
+			"ssh root@bela halt &".unixCmd
+		}.inEnvir)
 	),
-	*/
+
 	HLayout(
 		Button().states_([["Re-init server"]]).action_({
-			Server.default.freeAll.initTree.notify_(true).startAliveThread;
-		}),
+			~belaServer.freeAll.initTree.notify_(true).startAliveThread;
+		}.inEnvir),
 		Button().states_([["Soft reload"]]).action_({
 			~respawnAll = false;
 			(path +/+ "main.scd").load;
-		}),
+		}.inEnvir),
 		Button().states_([["Hard reload"]]).action_({
 			~respawnAll = true;
 			(path +/+ "main.scd").load;
-		}),
-
-
+		}.inEnvir),
 	),
+	//"ssh root@bela systemctl stop bela_startup &".unixCmd;
 	Button().states_([["Mute off"], ["Mute on"]]).action_({ |btn|
 		~synths[\bbOut].postln.run(btn.value == 0);
-	}),
+	}.inEnvir),
 	StaticText().string_("IMU"),
 	HLayout(
 		Button().states_([["Calibrate"]]).action_({
