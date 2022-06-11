@@ -23,7 +23,7 @@ GC
 )
 
 //Osc freq påverkas av amplitudskifte
-s.latency = 0
+s.latency = nil
 Spec.add(\phase, [0, 2pi])
 (
 Ndef(\test, {
@@ -41,7 +41,7 @@ Ndef(\test, {
 	//post
 	SafetyLimiter.ar(HPF.ar(snd.dup, 50)) * 0.31
 
-}).gui.play
+}).play
 )
 
 CmdPeriod.freeRemote = true
