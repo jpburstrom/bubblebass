@@ -121,3 +121,12 @@ SynthDef(\allPass, {
 	snd = snd + BAllPass.ar(snd, imuFreq, 1);
 	ReplaceOut.ar(\out.kr(0), snd);
 }).add;
+
+SynthDef(\fyr, {
+	var snd = In.ar(\in.kr(0), 4);
+	var amp = In.ar(\ampBus.kr(0), 1);
+	var phase = LFSaw.ar(amp.linlin(0, 0.05, 0.1, 0.001)).range(0, 2pi);
+
+	var fx = Hilbert.ar(snd) * (phase + [ 0.5*pi, 0.0 ]);
+	ReplaceOut.ar(\out.kr, snd);
+}).add;

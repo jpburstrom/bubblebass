@@ -14,9 +14,10 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	Server.default = ~belaServer;
 	~server = Server.default;
 	~server.options.reservedNumControlBusChannels = 256;
+	~belaServer.options.numOutputBusChannels = 6;
+	~belaServer.options.numInputBusChannels = 4;
 	~server.options.maxLogins = 2;
 };
-
 
 
 {
@@ -271,7 +272,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 			\out, ~audioBus[\main].subBus(i),
 			\imuPitchAmp, ~ctlBus[\imuPitchAmp], //pitch
 			\trillBus, ~ctlBus[\trillRed][i],
-			\preamp, 3
+			\preamp, 6
 		], ~groups.level, \addToTail);
 
 	};
@@ -288,8 +289,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 	//------------FX-----------------
 
-
-	/*
+/*
 	~synths[\allPass] = Synth(\allPass, [
 		\in, ~audioBus[\main],
 		\out, ~audioBus[\main],
@@ -297,11 +297,19 @@ if (Server.default == Server.named[\ScoreDummy]) {
 	], ~groups.postfx, \addToTail);
 	*/
 
-	[\preLimiterGain].do { |key|
+	[\preLimiterGain, \fyr].do { |key|
 		~synths[key] = nil ! 4;
 	};
 
 	4.do { |i|
+/*
+		~synths[\fyr][i] = Synth(\fyr, [
+			\in, ~audioBus[\main].subBus(i),
+			\out, ~audioBus[\main].subBus(i),
+			\ampBus, ~ctlBus.[\envFollow].subBus(i)
+		], ~groups.postfx, \addToTail);
+		*/
+
 		~synths[\preLimiterGain][i] = Synth(\preLimiterGain, [
 			\in, ~audioBus[\main].subBus(i),
 			\out, ~audioBus[\main].subBus(i),
@@ -334,6 +342,6 @@ if (Server.default == Server.named[\ScoreDummy]) {
 
 
 
-	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0], ~groups.output);
+	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0, \rollBus, ~ctlBus[\imuRoll], \pitchBus, ~ctlBus[\imuPitch]], ~groups.output);
 
 }.forkIfNeeded;
