@@ -9,7 +9,7 @@ SynthDef(\bbIn, {
 
 SynthDef(\bbOut, {
 	var in = In.ar(\in.kr(0), 4);
-	var out = in.sum;
+	var out = in.tanh.sum;
 
 	//---FYR---
 
@@ -22,7 +22,7 @@ SynthDef(\bbOut, {
 	var shelf = In.kr(\pitchBus.kr(0), 1);
 
 
-	out = BHiShelf.ar(out, 500, 1, shelf.linlin(-0.2, 0.2, -24, 0));
+	out = BHiShelf.ar(out, 500, 1, shelf.linlin(-0.2, 0.2, -32, 0));
 
 	/* FYYYYR
 	out = FreqShift.ar(out, 0,
@@ -34,14 +34,15 @@ SynthDef(\bbOut, {
 
 
 
-	out = BLowCut.ar(out, 32, 2);
-	out = SafetyLimiter.ar(out, 0.2, 0.1) * 0.5;
+	out = BLowCut.ar(out, 64, 1);
+	//out = SafetyLimiter.ar(out, 0.2, 0.1) * 0.5;
+
+	out = out.tanh * 0.667;
 
 	//Direct out, route to 2-5
 	//FIXME: This should probably be taken from direct input
 	//Out.ar(\directOut.kr(2), in);
 	//Speaker out
-	//Sounds better to invert phase
-	Out.ar(\out.kr(0), [out, out.neg]);
+	Out.ar(\out.kr(0), out.dup);
 }).add;
 
