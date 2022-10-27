@@ -9,7 +9,7 @@ SynthDef(\bbIn, {
 
 SynthDef(\bbOut, {
 	var in = In.ar(\in.kr(0), 4);
-	var out = in.tanh.sum;
+	var out = in;
 
 	//---FYR---
 
@@ -22,7 +22,22 @@ SynthDef(\bbOut, {
 	var shelf = In.kr(\pitchBus.kr(0), 1);
 
 
+	//Här någon typ av waveshaping, per sträng
+	out = out.tanh;
+	//Compander verkar vara en rätt så bra
+	out = Compander.ar(out, out, 0.3, 1, 0.25, 0.1, 1);
+
+	//MONO BELOW
+	out = out.sum;
+
+	//Mappar roll till kort delay. TEST
+	//out = DelayC.ar(out, 0.01, tilt.abs.linlin(0, 0.2, 0, 0.01).lag(0.1));
+
+	//Open shelf when moving forwards
 	out = BHiShelf.ar(out, 500, 1, shelf.linlin(-0.2, 0.2, -32, 0));
+
+	//A small adjustment to make it a bit less boxy
+	out = BPeakEQ.ar(out, 800, 1, -6);
 
 	/* FYYYYR
 	out = FreqShift.ar(out, 0,
@@ -34,8 +49,12 @@ SynthDef(\bbOut, {
 
 
 
+	//Low cut filter to protect speakers. Previously a steeper filter at 32Hz.
+	//might need further tweaking
 	out = BLowCut.ar(out, 64, 1);
 	//out = SafetyLimiter.ar(out, 0.2, 0.1) * 0.5;
+
+
 
 	out = out.tanh * 0.667;
 
