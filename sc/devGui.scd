@@ -101,7 +101,7 @@ win = Window().front.layout_(VLayout(
 		}).toolTip_("Generate and update JSON file on the Bela"),
 	),
 
-	"utils/bela-bus-sliders.scd".loadRelative,
+	(path +/+ "utils/bela-bus-sliders.scd").load.inEnvir.value(path),
 	plotter = ScrollView().minHeight_(300)
 ));
 win.view.fixedWidth_(300);
