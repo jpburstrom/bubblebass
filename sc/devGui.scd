@@ -94,7 +94,7 @@ win = Window().front.layout_(VLayout(
 						"Score sent to Bela!".postln;
 					} {
 						"Something went wrong when sending the score".warn;
-						"Find the score at: %".format(filename)
+						"Find the score at: %".format(filename).postln;
 					}
 				})
 			}

@@ -11,14 +11,21 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~belaServer.startAliveThread
 	};
 
+	//Kludge
 	Server.default = ~belaServer;
-	~server = Server.default;
-	~server.options.reservedNumControlBusChannels = 256;
-	~belaServer.options.numOutputBusChannels = 6;
-	~belaServer.options.numInputBusChannels = 4;
+	~server = ~belaServer;
 	~server.options.maxLogins = 2;
 };
 
+//These settings should be the same for both ScoreClock and Bela server
+~server.options.reservedNumControlBusChannels = 256;
+~server.options.numOutputBusChannels = 6;
+~server.options.numInputBusChannels = 4;
+
+if (isRendering or: { ~respawnAll }) {
+	~server.newBusAllocators;
+	~server.newBufferAllocators;
+};
 
 {
 
@@ -32,6 +39,8 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~server.initTree;
 		~server.notify = true;
 		~server.startAliveThread;
+		~server.newBusAllocators;
+		~server.newBufferAllocators;
 	};
 
 	//Buffers used for parameter mapping
