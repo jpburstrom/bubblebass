@@ -57,9 +57,8 @@ win = Window().front.layout_(VLayout(
 			(path +/+ "main.scd").load;
 		}.inEnvir),
 	),
-	//"ssh root@bela systemctl stop bela_startup &".unixCmd;
 	Button().states_([["Mute off"], ["Mute on"]]).action_({ |btn|
-		~synths[\bbOut].postln.run(btn.value == 0);
+		~synths[\bbOut].run(btn.value == 0);
 	}.inEnvir),
 	StaticText().string_("IMU"),
 	HLayout(
@@ -111,6 +110,4 @@ win.onClose = {
 	closePlotter.value;
 	updater.stop;
 }
-
-
 
