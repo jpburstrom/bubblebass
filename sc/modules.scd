@@ -1,7 +1,42 @@
 ~modules = ().make {
 
+	~modulePath = "modules/*".resolveRelative;
+
+	~defaults = IdentityDictionary[
+			\rates -> [\scalar]
+		];
+
 	//Dictionary of modules
 	~moduleDict = IdentityDictionary().know_(true);
+
+	~list = { |self, showArgs=false|
+		self.moduleDict.keys.asArray.sort.do { |key|
+			var dict = self.moduleDict[key];
+			var specs = dict[\specs] ? ();
+			var func = dict[\func];
+			var names = func.def.argNames;
+			var defaults = func.def.prototypeFrame;
+			"%: %".format(key, dict.desc ? "").postln;
+			if (showArgs) {
+				names.collect({ |name, i|
+					var default = self.getDefaultValue(key, name, defaults[i]);
+					var out = "\t%) %".format(i+1, name);
+					if (default.notNil) { //Either spec or arg default
+						var spec = specs[name];
+						out = out ++ if (spec.notNil) {
+							": % (min: %, max: %, warp: %, step: %)".format(
+								default, spec.minval, spec.maxval, spec.warp, spec.step
+							)
+						} {
+							": %".format(default)
+						};
+					};
+					out.postln
+				})
+			}
+
+		};
+	};
 
 	//Build function. Takes a key and synth arguments
 	~build = { |self, key ... args|
@@ -10,20 +45,15 @@
 			var func = self.moduleDict[key][\func];
 			var names = func.def.argNames;
 			var defaults = func.def.prototypeFrame;
-			args = defaults.collect { |default, i|
+			args = names.collect { |name, i|
+				var default = defaults[i];
 				var x = args[i];
 				if (x.notNil) {
 					//Map to spec if value is responding to \specMap
-					self.trySpecMap(key, names[i].asSymbol, x)
+					self.trySpecMap(key, name, x)
 				} {
 					//Try spec if no default value
-					if (default.isNil) {
-						var spec = self.getParamSpec(key, names[i]);
-						if (spec.notNil) {
-							default = spec.default
-						}
-					};
-					default
+					self.getDefaultValue(key, name, default)
 				}
 			};
 			self.checkRates(key, args, names);
@@ -75,9 +105,8 @@
 	//\sizes: Array or single value of channel count for each input, see ~checkSizes
 	//\rates: Array or single value of rate(s) for each input, see ~checkRates
 	~addModule = { |self, key, envir|
-		self.moduleDict[key] = envir.parent_(IdentityDictionary[
-			\rates -> [\scalar]
-		]);
+		self.moduleDict[key] = envir.parent_(self.defaults);
+		envir[\filePath] = thisProcess.nowExecutingPath;
 	};
 
 	//Remove module
@@ -87,7 +116,7 @@
 
 	//Get spec for param, nil if non-existing
 	~getParamSpec = { |self, key, param|
-		self.moduleDict[key].specs[param]
+		self.moduleDict[key].specs !? (_[param])
 	};
 
 	//Values can be dictionaries with specMap key pointing to the value
@@ -117,13 +146,30 @@
 			}
 		};
 		outval
+	};
+
+	~getDefaultValue = { |self, key, paramKey, default|
+		if (default.isNil) {
+			var spec = self.getParamSpec(key, paramKey);
+			if (spec.notNil) {
+				default = spec.default
+			}
+		};
+		default
+	};
+
+
+	~rescan = { |self|
+		//Load all modules
+		self.modulePath.pathMatch.do { |path|
+			path.load;
+		};
+	};
+
+	~openPathFor = { |self, key|
+		self.moduleDict[key].filePath.openDocument
 	}
 
-
 };
 
-//Load all modules
-"modules/*".resolveRelative.pathMatch.do { |path|
-	path.load;
-};
-
+~modules.rescan;
