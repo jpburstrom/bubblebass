@@ -11,55 +11,64 @@
 
 	~list = { |self, showArgs=false|
 		self.moduleDict.keys.asArray.sort.do { |key|
-			var dict = self.moduleDict[key];
-			var specs = dict[\specs] ? ();
-			var func = dict[\func];
-			var names = func.def.argNames;
-			var defaults = func.def.prototypeFrame;
-			"%: %".format(key, dict.desc ? "").postln;
-			if (showArgs) {
-				names.collect({ |name, i|
-					var default = self.getDefaultValue(key, name, defaults[i]);
-					var out = "\t%) %".format(i+1, name);
-					if (default.notNil) { //Either spec or arg default
-						var spec = specs[name];
-						out = out ++ if (spec.notNil) {
-							": % (min: %, max: %, warp: %, step: %)".format(
-								default, spec.minval, spec.maxval, spec.warp, spec.step
-							)
-						} {
-							": %".format(default)
-						};
-					};
-					out.postln
-				})
-			}
-
+			self.showInfo(key, showArgs);
 		};
+	};
+
+	~showInfo = { |self, key, showArgs=true|
+		var dict = self.moduleDict[key];
+		var specs = dict[\specs] ? ();
+		var func = dict[\func];
+		var names = func.def.argNames;
+		var defaults = func.def.prototypeFrame;
+		"%: %".format(key, dict.desc ? "").postln;
+		if (showArgs) {
+			names.collect({ |name, i|
+				var default = self.getDefaultValue(key, name, defaults[i]);
+				var out = "\t%) %".format(i+1, name);
+				if (default.notNil) { //Either spec or arg default
+					var spec = specs[name];
+					out = out ++ if (spec.notNil) {
+						": % (min: %, max: %, warp: %, step: %)".format(
+							default, spec.minval, spec.maxval, spec.warp, spec.step
+						)
+					} {
+						": %".format(default)
+					};
+				};
+				out.postln
+			})
+		};
+		0
 	};
 
 	//Build function. Takes a key and synth arguments
 	~build = { |self, key ... args|
 		var module = self.moduleDict[key];
 		if (module.notNil) {
-			var func = self.moduleDict[key][\func];
-			var names = func.def.argNames;
-			var defaults = func.def.prototypeFrame;
-			args = names.collect { |name, i|
-				var default = defaults[i];
-				var x = args[i];
-				if (x.notNil) {
-					//Map to spec if value is responding to \specMap
-					self.trySpecMap(key, name, x)
-				} {
-					//Try spec if no default value
-					self.getDefaultValue(key, name, default)
-				}
-			};
-			self.checkRates(key, args, names);
-			self.checkSizes(key, args, names);
-			//Build
-			func.value(*args);
+			if (UGen.buildSynthDef.isNil) {
+				"building should be done inside a SynthDef ugenGraphFunc.".error;
+				self.showInfo(key);
+			} {
+				var func = self.moduleDict[key][\func];
+				var names = func.def.argNames;
+				var defaults = func.def.prototypeFrame;
+				args = names.collect { |name, i|
+					var default = defaults[i];
+					var x = args[i];
+					if (x.notNil) {
+						//Map to spec if value is responding to \specMap
+						self.trySpecMap(key, name, x)
+					} {
+						//Try spec if no default value
+						self.getDefaultValue(key, name, default)
+					}
+				};
+				self.checkRates(key, args, names);
+				self.checkSizes(key, args, names);
+				//Build
+				func.value(*args);
+			}
 		} {
 			"Couldn't find module %".format(key).warn
 		}
