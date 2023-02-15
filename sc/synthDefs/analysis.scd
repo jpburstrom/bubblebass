@@ -104,3 +104,9 @@ SynthDef(\envFollow, {
 }).add;
 
 
+SynthDef(\envFollow4x, {
+	var sig = In.ar(\in.kr(0), 4);
+	sig = sig.abs;
+	sig = Slew.ar(sig, \up.ir(100), \down.ir(2));
+	Out.kr(\out.kr(0), sig);
+}).add;
