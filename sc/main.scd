@@ -11,10 +11,11 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~belaServer.startAliveThread
 	};
 
+	~server = Server.default;
 	//Kludge
-	Server.default = ~belaServer;
-	~server = ~belaServer;
-	~server.options.maxLogins = 2;
+	//Server.default = ~belaServer;
+	//~server = ~belaServer;
+	//~server.options.maxLogins = 2;
 };
 
 //These settings should be the same for both ScoreClock and Bela server
@@ -43,6 +44,7 @@ if (isRendering or: { ~respawnAll }) {
 		~server.newBufferAllocators;
 	};
 
+
 	//Buffers used for parameter mapping
 	if (isRendering.not) {
 		~buffers.do(_.free);
@@ -53,6 +55,9 @@ if (isRendering or: { ~respawnAll }) {
 	~buffers.addMapping(\dummy, -0.2, 0.2, 0, \allPassCurve);
 	~buffers.addMapping(\imuRollFreq, -0.2, 0.2, 0, \allPassCurve);
 	~buffers.addMapping(\imuPitchAmp, -0.4, 0.3);
+
+	//Modules
+	"modules.scd".loadRelative;
 	//SynthDefs
 	"synthDefs/*.scd".resolveRelative.pathMatch.do(_.load);
 
@@ -91,10 +96,16 @@ if (isRendering or: { ~respawnAll }) {
 		imuPitchAmp: Bus('control', 128, 1),
 		imuRollFreq: Bus('control', 129, 1),
 
-
-
 		null: Bus('control', 224, 32)
 	);
+
+	~buttonPins = (
+		small: 12,
+		keyUp: 13,
+		keyDn: 15,
+		switch: 5
+	);
+
 	//Make 4-item arrays of buses
 	value {
 		var offset = 5;
@@ -143,26 +154,40 @@ if (isRendering or: { ~respawnAll }) {
 
 
 	if (respawnAll or: ~synths[\trillInput].isPlaying.not) {
+		//TODO move to globals?
 		~synths[\trillInput] = Synth(\trillInput, ~ctlBus.trill.collect({ |bus, i| ["out%".format(i), bus] }).flatten, ~groups.global).register(true);
 	};
 
 	//----GLOBAL------//
 
 
-	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.global);
-	~synths[\setupController] = Synth(\nodePauseController2, [
-		\inbus, ~ctlBus[\btnSwitch], \node1, ~groups[\play], \node2, ~groups[\setup]
-	], ~groups.global);
+	~synths[\globals] = SynthDef(\globals, {
+		|switchPin, switchBus, playGroup, setupGroup, busSavePin, imuBus|
 
-	//Save/Load/Quit
-	~synths[\bubbleUtils] = Synth(\bubbleUtils, [\pin, 12], ~groups.global);
+		var imu, switch = ~modules.build(\simpleButton, switchPin);
+		//Toggle play/setup
+		~modules.build(\nodePauseController2, switch, playGroup, setupGroup);
+		//Save/Load/Quit
+		~modules.build(\bubbleUtils, busSavePin);
+		//IMU
+		imu = ~modules.build(\imuInput,
+			\imuCalibrate.tr(0), \imuCalibrateBus.kr(0),
+			\imuSave.tr(0), \imuSaveBus.kr(0),
+			\imuLoad.tr(0)
+		);
+		Out.kr(imuBus, imu);
+		Out.kr(switchBus, switch);
 
-	//Input from motion sensor
-	~synths[\imuInput] = Synth(\imuInput, [
-		\out, ~ctlBus.imu,
-		\calibrateBus, ~ctlBus.imuCalibrate,
-		\saveBus, ~ctlBus.imuSave
-	], ~groups.global);
+	}).play(~groups.global, [
+		\switchPin, ~buttonPins[\switch],
+		\switchBus, ~ctlBus[\btnSwitch],
+		\playGroup, ~groups[\play],
+		\setupGroup, ~groups[\setup],
+		\busSavePin, ~buttonPins[\small],
+		\imuCalibrateBus, ~ctlBus[\imuCalibrate],
+		\imuSaveBus, ~ctlBus[\imuSave]
+	]);
+
 
 	//------------SETUP-------------//
 
@@ -185,11 +210,11 @@ if (isRendering or: { ~respawnAll }) {
 	};
 
 	~synths[\imuCalibrate] = Synth(\trigButton, [
-		\pin, 13, \outbus, ~ctlBus.imuCalibrate
+		\pin, ~buttonPins.keyUp, \outbus, ~ctlBus.imuCalibrate
 	], ~groups.setup, \addToTail);
 
 	~synths[\imuSave] = Synth(\trigButton, [
-		\pin, 15, \outbus, ~ctlBus.imuSave
+		\pin, ~buttonPins.keyDn, \outbus, ~ctlBus.imuSave
 	], ~groups.setup, \addToTail);
 
 	~synths[\imuLed] = Synth(\ledImuToBus, [
@@ -197,7 +222,7 @@ if (isRendering or: { ~respawnAll }) {
 	], ~groups.setup, \addToTail);
 
 	//------------PLAY--------------//
-
+/*
 	//Audio input
 	~synths[\bbIn] = Synth(\bbIn, [
 		\out, ~audioBus.main, \directOut, 2
@@ -207,7 +232,7 @@ if (isRendering or: { ~respawnAll }) {
 	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp, \nullbus, ~ctlBus[\null]], ~groups.input);
 	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
 
-	~synths[\leds] = Synth(\ledBus,
+	~synths[\j] = Synth(\ledBus,
 		[\inbus, ~ctlBus[\leds], \resetBus, ~ctlBus[\btnSwitch]],
 	~groups.output);
 	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
@@ -352,5 +377,5 @@ if (isRendering or: { ~respawnAll }) {
 
 
 	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0, \rollBus, ~ctlBus[\imuRoll], \pitchBus, ~ctlBus[\imuPitch]], ~groups.output);
-
+*/
 }.forkIfNeeded;
