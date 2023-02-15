@@ -10,6 +10,20 @@
 //4 - double press
 //8 - long press
 
+~modules.addModule(\digitalIn, (
+	desc: "Wrapper for Bela DigitalIn UGen",
+	func: { |pin|
+		if (~isBela.not and: { ~server != ~belaServer }) {
+			var key = "digitalInPin%".format(UniqueID.next);
+			"Can't use DigitalIn, fallback to control %".format(key).warn;
+			key.asSymbol.kr(0);
+		} {
+			DigitalIn.kr(pin)
+		}
+	}
+));
+
+
 ~modules.addModule(\threeStateKey, (
 	desc: "Listen to input from button, keep states according to button gestures: 2-short 4-double 8-long",
 	sizes: 1,
@@ -20,7 +34,7 @@
 		var debounceTime = 0.01;
 		//
 		//var rawButton = MouseButton.kr(lag:0);
-		var rawButton = DigitalIn.kr(\pin.kr(0));
+		var rawButton = ~modules.build(\digitalIn, pin);
 		var trig = Trig1.kr(rawButton, debounceTime);
 		var timer = Sweep.kr(trig);
 		var btnInited = Latch.kr(1, trig);
@@ -55,7 +69,7 @@
 		var debounceTime = 0.01;
 
 		//var rawButton = MouseButton.kr(lag:0);
-		var rawButton = DigitalIn.kr(\pin.kr(0));
+		var rawButton =  ~modules.build(\digitalIn, pin);
 		var trig = Trig1.kr(rawButton, debounceTime);
 		var timer = Sweep.kr(trig);
 		//Toggle between 2 & 4, output zero until triggered
@@ -82,14 +96,14 @@
 ~modules.addModule(\simpleButton, (
 	desc: "Button for momentary or switch use",
 	func: { |pin|
-		DigitalIn.kr(pin);
+		~modules.build(\digitalIn, pin)
 	}
 ));
 
 ~modules.addModule(\trigButton, (
 	desc: "Trig button, outputting high value for dur (0.1) duration",
 	func: { |pin, dur=0.1|
-		Trig.kr(DigitalIn.kr(pin), dur);
+		Trig.kr(~modules.build(\digitalIn, pin), dur);
 	}
 ));
 
@@ -127,7 +141,7 @@
 ~modules.addModule(\bubbleUtils, (
 	desc: "Save and quit from a digitalIn pin. Load automatically by default.",
 	func: { |pin, load=1, quitDuration=1.5|
-		var trig = DigitalIn.kr(\pin.kr(0));
+		var trig = ~modules.build(\digitalIn, pin);
 		var save = Trig.kr(trig);
 		var quit = (Sweep.kr(save) * trig) > quitDuration;
 		BubbleUtils.kr(save, load, quit)
