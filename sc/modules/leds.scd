@@ -78,7 +78,6 @@
 ));
 
 
-
 ~modules.addModule(\threeStateToLed, (
 	desc: "Display incoming value [2,4,8] as [r,g,b]",
 	func: { |val=1|
@@ -88,7 +87,17 @@
 			BinaryOpUGen('==', i, val)
 		});
 	}
+));
 
+~modules.addModule(\threeStateToLedBus, (
+	desc: "Display incoming value [2,4,8] over three buses, to use with \ledBus module",
+	func: { |val=1, outbus=0, rate=\kr|
+		var outvals;
+		val = val >> 2;
+		Out.perform(rate, outbus, 3.collect({ |i|
+			BinaryOpUGen('==', i, val)
+		}).postln);
+	}
 ));
 
 
