@@ -58,20 +58,20 @@ win = Window().front.layout_(VLayout(
 		}.inEnvir),
 	),
 	Button().states_([["Mute off"], ["Mute on"]]).action_({ |btn|
-		~synths[\bbOut].run(btn.value == 0);
+		~synths[\playOutput].run(btn.value == 0);
 	}.inEnvir),
 	StaticText().string_("IMU"),
 	HLayout(
 		Button().states_([["Calibrate"]]).action_({
-			~synths[\imuInput].set(\calibrate, 1)
+			~synths[\globals].set(\imuCalibrate, 1)
 
 		}),
 		Button().states_([["Load"]]).action_({
-			~synths[\imuInput].set(\load, 1)
+			~synths[\globals].set(\imuLoad, 1)
 
 		}),
 		Button().states_([["Save"]]).action_({
-			~synths[\imuInput].set(\save, 1)
+			~synths[\globals].set(\imuSave, 1)
 
 		})
 	),
