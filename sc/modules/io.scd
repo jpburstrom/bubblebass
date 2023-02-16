@@ -1,6 +1,6 @@
 ~modules.addModule(\bbIn, (
 	desc: "Audio input",
-	func: { |inputs=#[0, 1, 3, 2], directOutBus=2|
+	func: { |directOutBus=2, inputs=#[0, 1, 3, 2]|
 
 		var snd = SoundIn.ar(inputs); //Hardcoded but should never change, right?
 
@@ -67,7 +67,7 @@
 		//FIXME: This should probably be taken from direct input
 		//Out.ar(\directOut.kr(2), in);
 		//Speaker out
-		Out.ar(\outbus, out.dup);
+		Out.ar(outbus, out.dup);
 	}
 ));
 
