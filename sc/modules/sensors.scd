@@ -1,11 +1,11 @@
 ~modules.addModule(\imuInput, (
 	desc: "Input from IMU to bus with calibration and save stuff",
 	//TODO how to do with triggers and stuff? Is this a synthDef?
-	func: {
-		var calibrate = \calibrate.tr(0) + In.kr(\calibrateBus.kr(0));
-		var save = \save.tr(0) + In.kr(\saveBus.kr(0));
-		var data = BNO.orientationKr(calibrate, \load.tr(0), save);
-		Out.kr(\out.kr(0), data);
+	func: { |calibrateTrig, calibrateBus, saveTrig, saveBus, loadTrig|
+		var calibrate = calibrateTrig + In.kr(calibrateBus);
+		var save = saveTrig + In.kr(saveBus);
+		var data = BNO.orientationKr(calibrate, loadTrig, save);
+		data
 	}
 ));
 
