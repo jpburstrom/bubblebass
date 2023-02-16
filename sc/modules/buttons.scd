@@ -14,7 +14,7 @@
 	desc: "Wrapper for Bela DigitalIn UGen",
 	func: { |pin|
 		if (~isBela.not and: { ~server != ~belaServer }) {
-			var key = "digitalInPin%".format(UniqueID.next);
+			var key = "digitalIn_%".format(pin);
 			"Can't use DigitalIn, fallback to control %".format(key).warn;
 			key.asSymbol.kr(0);
 		} {
