@@ -79,13 +79,13 @@
 	//rates can be array or single value. The check will wrap shorter arrays or single values.
 	~checkRates = { |self, key, args, names|
 		args.do { |x, i|
-			if (self.moduleDict[key].rates.asArray.wrapAt(i) < x.rate) {
+			//If arg is function, don't check, you're on your own
+			if (x.isFunction.not and: { self.moduleDict[key].rates.asArray.wrapAt(i) < x.rate }) {
 				Error("%: Rate mismatch for arg %".format(key, names[i])).throw;
 			}
 		};
 		true
 	};
-
 	//Check sizes.
 	//(sizes: nil) //don't check sizes
 	//(sizes: [1,2,2]) //check three sizes
