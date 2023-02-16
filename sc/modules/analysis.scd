@@ -41,16 +41,16 @@
 //Pitch tracker from above, rebuilt in Faust
 ~modules.addModule(\pitchTracker4, (
 	desc: "Pitch tracker loosely modeled after Roland GR-300, Faust version",
-	rates: [\audio, \control, \control],
+	rates: [\audio, \scalar, \scalar, \noncontrol],
 	sizes: [4, 4, 4],
-	func: { |in, ffreq, inAmp|
+	func: { |in, ffreq, inAmp, rate=\kr|
 		var pitch, sig, tracker;
 
-		tracker = GRPitchTracker4.ar(
+		tracker = GRPitchTracker4.perform(rate,
 			*(in ++ ffreq)
 		);
 		//Group into 2 arrays: 4x pitch, 4x sawtooth wave
-		#pitch, sig = tracker.clump(2).flop;
+		#sig, pitch = tracker.clump(2).flop;
 
 		[pitch, K2A.ar(sig) * inAmp]
 
