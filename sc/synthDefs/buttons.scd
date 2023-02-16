@@ -106,3 +106,4 @@ SynthDef(\bubbleUtils, {
     var quit = (Sweep.kr(save) * trig) > 1.5;
     BubbleUtils.kr(save, 1, quit)
 }).add;
+

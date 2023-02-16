@@ -1,5 +1,0 @@
-#N canvas 46 110 496 408 10;
-#X obj 120 32 devGui;
-#X msg 44 322 read settings.txt \, click;
-#X obj 44 347 text define settings;
-#X connect 1 0 2 0;

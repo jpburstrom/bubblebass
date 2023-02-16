@@ -1,4 +1,0 @@
-#N canvas 0 23 791 431 12;
-#X obj 475 215 r bela_digitalIn\$1;
-#X obj 475 246 debug dig\$1;
-#X connect 0 0 1 0;
