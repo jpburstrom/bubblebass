@@ -88,7 +88,8 @@
 	~checkRates = { |self, key, args, names|
 		args.do { |x, i|
 			//If arg is function, don't check, you're on your own
-			if (x.isFunction.not and: { self.moduleDict[key].rates.asArray.wrapAt(i) < x.rate }) {
+			var rate = x.tryPerform(\rate);
+			if (#[control, audio, scalar].includes(rate) and: { self.moduleDict[key].rates.asArray.wrapAt(i) < rate }) {
 				Error("%: Rate mismatch for arg %".format(key, names[i])).throw;
 			}
 		};
