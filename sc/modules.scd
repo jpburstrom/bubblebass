@@ -75,6 +75,14 @@
 
 	};
 
+	~makeSynthDef = { |self, key ...args|
+		{ self.build(key, *args) }.asSynthDef
+	};
+
+	~dumpUGens = { |self, key ...args|
+		self.makeSynthDef(key, *args).dumpUGens
+	};
+
 	//Check rates. Faster rates are accepted, but audio inputs can't take control values
 	//rates can be array or single value. The check will wrap shorter arrays or single values.
 	~checkRates = { |self, key, args, names|
