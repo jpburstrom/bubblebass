@@ -24,14 +24,15 @@
 
 ~modules.addModule(\trillInput, (
 	desc: "Input 4 trills, output to buses with pos scaling",
-	func: { |posMul=(-0.9), posAdd=0.95, noiseThreshold=0.02, prescaler=4, addresses=#[0x20,0x21,0x22,0x23]|
-		addresses.do { |addr, i|
+	func: { |posMul=(-0.9), posAdd=0.95, noiseThreshold=0.02, prescaler=4, addresses=#[0x23,0x22,0x21,0x20]|
+		addresses.collect { |addr, i|
 			var vals = ~modules.build(\trillCentroids, addr, noiseThreshold, prescaler);
 			//Fix edges + invert scale - TODO make this part of Centroids class?
 			vals[1] = vals[1] * posMul + posAdd;
 			vals[3] = vals[3] * posMul + posAdd;
 			//Output in reverse order - 0 is uppermost, 3 lowest
-			Out.kr(NamedControl.kr("out%".format(3 - i)), vals[0..4]);
+			//Out.kr(NamedControl.kr("out%".format(3 - i)), vals[0..4]);
+			vals;
 		}
 	}
 ));

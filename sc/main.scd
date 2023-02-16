@@ -155,9 +155,16 @@ if (isRendering or: { ~respawnAll }) {
 
 	if (respawnAll or: ~synths[\trillInput].isPlaying.not) {
 		//TODO move to globals?
-		~synths[\trillInput] = Synth(\trillInput, ~ctlBus.trill.collect({ |bus, i| ["out%".format(i), bus] }).flatten, ~groups.global).register(true);
+		~synths[\trillInput] = SynthDef(\myTrillInput, {
+			var trills = ~modules.build(\trillInput);
+			trills.do { |trill, i|
+				trill.size.postln;
+				Out.kr(NamedControl.kr("out%".format(i)), trill);
+			}
+		}).play(~groups.global, ~ctlBus[\trill].collect({ |bus, i|
+			["out%".format(i), bus]
+		}).flatten).register(true);
 	};
-
 	//----GLOBAL------//
 
 
@@ -186,7 +193,7 @@ if (isRendering or: { ~respawnAll }) {
 		\busSavePin, ~buttonPins[\small],
 		\imuCalibrateBus, ~ctlBus[\imuCalibrate],
 		\imuSaveBus, ~ctlBus[\imuSave]
-	]);
+	], \addToTail);
 
 
 	//------------SETUP-------------//
