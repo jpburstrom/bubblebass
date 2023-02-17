@@ -5,7 +5,6 @@ SynthDef(\imuInput, {
 	Out.kr(\out.kr(0), data);
 }).add;
 
-
 SynthDef(\trillInput, {
 	4.do { |i|
 		var vals = TrillCentroids.kr(1, 0x20 + i, 0.02, 4)[0..4];
@@ -59,8 +58,11 @@ SynthDef(\trillMultiTouchFilter, {
 
 }).add;
 
-//Routing for all trills in a single button group/mode
-SynthDef(\trillRouting, {
+
+
+
+//Routing for all trills in a single button group/mode, sc version
+SynthDef(\trillRouting_SC, {
 
 	var trills = In.kr(\trillBus.kr(15), 20);
 	var outbusIndex = \out.kr(0); //Index of 4 x 5 channel bus
@@ -95,6 +97,33 @@ SynthDef(\trillRouting, {
 		ReplaceOut.kr(Select.kr(active2, [nullbusIndex, outbusIndex + count + 2]), trill[[1,3]]);
 		//If 3 fingers, send trig
 		Out.kr(outbusIndex + count + 4, Trig.kr(BinaryOpUGen('==', numFingers, 3)));
+	}
+
+}).add;
+
+
+//Module/UGen version
+SynthDef(\trillRouting, {
+
+	var trills = In.kr(\trillBus.kr(15), 20);
+	var outbusIndex = \out.kr(0); //Index of first bus in a consecutive group of 4 x 5 channels
+	//Reset out values to current bus value. Needs to happen on synth start
+	//as well as on every BubbleUtils load
+	var reset = \reset.tr(0) + In.kr(\resetBus.kr(0)) + Impulse.kr(0);
+	var trillBusSize = 5;
+	var resetValSize = 4;
+	//Loop over 4 trills
+	trills.clump(trillBusSize).do { |trill, i|
+
+		var thisBusIndex = outbusIndex + (i * trillBusSize);
+
+		//Get input from output bus
+		var resetVals = In.kr(thisBusIndex, resetValSize);
+
+		var vals = ~modules.build(\trillFilter, trill, resetVals);
+
+
+		ReplaceOut.kr(thisBusIndex, vals);
 	}
 
 }).add;

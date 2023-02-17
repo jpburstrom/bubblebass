@@ -100,10 +100,10 @@ SynthDef(\nodePauseController2, {
 
 }).add;
 
-SynthDef(\bubbleUtils, {
-	var trig = DigitalIn.kr(\pin.kr(0));
+SynthDef(\bubbleUtils, { |pin, loadTrig=1|
+	var trig = DigitalIn.kr(pin);
 	var save = Trig.kr(trig);
     var quit = (Sweep.kr(save) * trig) > 1.5;
-    BubbleUtils.kr(save, 1, quit)
+    BubbleUtils.kr(save, loadTrig, quit)
 }).add;
 

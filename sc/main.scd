@@ -11,9 +11,8 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~belaServer.startAliveThread
 	};
 
-	//Kludge
 	Server.default = ~belaServer;
-	~server = ~belaServer;
+	~server = Server.default;
 	~server.options.maxLogins = 2;
 };
 
@@ -22,7 +21,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 ~server.options.numOutputBusChannels = 6;
 ~server.options.numInputBusChannels = 4;
 
-if (isRendering or: { ~respawnAll }) {
+if (isRendering or: { ~respawnAll ?? false }) {
 	~server.newBusAllocators;
 	~server.newBufferAllocators;
 };
@@ -43,6 +42,7 @@ if (isRendering or: { ~respawnAll }) {
 		~server.newBufferAllocators;
 	};
 
+
 	//Buffers used for parameter mapping
 	if (isRendering.not) {
 		~buffers.do(_.free);
@@ -53,6 +53,9 @@ if (isRendering or: { ~respawnAll }) {
 	~buffers.addMapping(\dummy, -0.2, 0.2, 0, \allPassCurve);
 	~buffers.addMapping(\imuRollFreq, -0.2, 0.2, 0, \allPassCurve);
 	~buffers.addMapping(\imuPitchAmp, -0.4, 0.3);
+
+	//Modules
+	"modules.scd".loadRelative;
 	//SynthDefs
 	"synthDefs/*.scd".resolveRelative.pathMatch.do(_.load);
 
@@ -64,7 +67,6 @@ if (isRendering or: { ~respawnAll }) {
 	//so let's ignore it for now
 	//see s.options.reservedNumControlBusChannels
 	// ~server.controlBusAllocator.reserve(0, 256);
-
 	~ctlBus = (
 		btnSwitch: Bus('control', 1, 1),
 		keyUp: Bus('control', 3, 1),
@@ -82,6 +84,9 @@ if (isRendering or: { ~respawnAll }) {
 		envFollow: Bus('control', 92, 4),
 		leds: Bus('control', 96, 3),
 
+		//Reset trigger bus, for trillFilter and others
+		reset: Bus('control', 99, 1),
+
 		//---SETUP---
 		//100-119: \trillRoutingSetup
 
@@ -91,10 +96,16 @@ if (isRendering or: { ~respawnAll }) {
 		imuPitchAmp: Bus('control', 128, 1),
 		imuRollFreq: Bus('control', 129, 1),
 
-
-
 		null: Bus('control', 224, 32)
 	);
+
+	~buttonPins = (
+		small: 12,
+		keyUp: 13,
+		keyDn: 15,
+		switch: 5
+	);
+
 	//Make 4-item arrays of buses
 	value {
 		var offset = 5;
@@ -125,9 +136,10 @@ if (isRendering or: { ~respawnAll }) {
 			#[global, setup, play].do {|key|
 				~groups[key] = Group(s, \addToTail);
 			};
-			#[input, analysis, prefx, level, postfx, output].do { |key|
+			#[input, mapping, output].do { |key|
 				~groups[key] = Group(~groups[\play],  \addToTail).register(true);
 			}
+
 		});
 	};
 	s.sync;
@@ -143,35 +155,81 @@ if (isRendering or: { ~respawnAll }) {
 
 
 	if (respawnAll or: ~synths[\trillInput].isPlaying.not) {
-		~synths[\trillInput] = Synth(\trillInput, ~ctlBus.trill.collect({ |bus, i| ["out%".format(i), bus] }).flatten, ~groups.global).register(true);
+		//TODO move to globals?
+		~synths[\trillInput] = SynthDef(\bubbleTrillInput, {
+			var trills = ~modules.build(\trillInput);
+			trills.do { |trill, i|
+				trill.size.postln;
+				Out.kr(NamedControl.kr("out%".format(i)), trill);
+			}
+		}).play(~groups.global, ~ctlBus[\trill].collect({ |bus, i|
+			["out%".format(i), bus]
+		}).flatten).register(true);
 	};
-
 	//----GLOBAL------//
 
 
-	~synths[\btnSwitch] = Synth(\simpleButton, [\pin, 5, \outbus, ~ctlBus[\btnSwitch]], ~groups.global);
-	~synths[\setupController] = Synth(\nodePauseController2, [
-		\inbus, ~ctlBus[\btnSwitch], \node1, ~groups[\play], \node2, ~groups[\setup]
-	], ~groups.global);
+	~synths[\globals] = SynthDef(\bubbleGlobals, {
+		|switchPin, switchBus, playGroup, setupGroup, busSavePin, imuBus, resetBus|
 
-	//Save/Load/Quit
-	~synths[\bubbleUtils] = Synth(\bubbleUtils, [\pin, 12], ~groups.global);
+		var imu, switch = ~modules.build(\simpleButton, switchPin);
+		//Load bus values on synth start and on demand
+		var busLoadTrig = \busLoad.tr(0) + Impulse.kr(0);
+		//Toggle play/setup
+		~modules.build(\nodePauseController2, switch, playGroup, setupGroup);
+		//Save/Load/Quit
+		~modules.build(\bubbleUtils, busSavePin, busLoadTrig);
+		//IMU
+		imu = ~modules.build(\imuInput,
+			\imuCalibrate.tr(0), \imuCalibrateBus.kr(0),
+			\imuSave.tr(0), \imuSaveBus.kr(0),
+			\imuLoad.tr(0)
+		);
+		//Send a reset on synth start for synths to pick up loaded bus values
+		Out.kr(resetBus, Impulse.kr(0) + busLoadTrig);
+		Out.kr(imuBus, imu);
+		Out.kr(switchBus, switch);
 
-	//Input from motion sensor
-	~synths[\imuInput] = Synth(\imuInput, [
-		\out, ~ctlBus.imu,
-		\calibrateBus, ~ctlBus.imuCalibrate,
-		\saveBus, ~ctlBus.imuSave
-	], ~groups.global);
+	}).play(~groups.global, [
+		\switchPin, ~buttonPins[\switch],
+		\switchBus, ~ctlBus[\btnSwitch],
+		\playGroup, ~groups[\play],
+		\setupGroup, ~groups[\setup],
+		\busSavePin, ~buttonPins[\small],
+		\imuBus, ~ctlBus[\imu],
+		\imuCalibrateBus, ~ctlBus[\imuCalibrate],
+		\imuSaveBus, ~ctlBus[\imuSave],
+		\resetBus, ~ctlBus[\reset]
+	], \addToTail);
+
+
 
 	//------------SETUP-------------//
+
+	~synths[\setup] = SynthDef(\bubbleSetup, {
+		|calibrateBus, calibratePin, saveBus, savePin, ledBus, imuBus|
+		//Route keyUp to calibration bus
+		Out.kr(calibrateBus, ~modules.build(\trigButton, calibratePin));
+		//Route keyDn to save bus
+		Out.kr(saveBus, ~modules.build(\trigButton, savePin));
+		//Route imu to leds
+		~modules.build(\imuBusToLed, imuBus);
+
+	}, \ir ! 6).play(~groups.setup, [
+		\calibratePin, ~buttonPins.keyUp,
+		\savePin, ~buttonPins.keyDn,
+		\calibrateBus, ~ctlBus.imuCalibrate,
+		\saveBus, ~ctlBus.imuSave,
+		\imuBus, ~ctlBus.imu,
+	], \addToHead);
 
 	~synths[\trillRoutingSetup] = Synth(\trillRouting, [
 		//Use first buses, output on all of them (4 x 5 ch)
 		\trillBus, ~ctlBus.trill[0], //first trill bus
 		\out, ~ctlBus[\trillRoutingSetup][0],
-		\nullbus, ~ctlBus[\null]
+		\resetBus, ~ctlBus[\reset]
 	], ~groups.setup, \addToTail);
+
 
 	~synths[\testTone] = nil ! 4;
 
@@ -184,51 +242,8 @@ if (isRendering or: { ~respawnAll }) {
 		], ~groups.setup, \addToTail);
 	};
 
-	~synths[\imuCalibrate] = Synth(\trigButton, [
-		\pin, 13, \outbus, ~ctlBus.imuCalibrate
-	], ~groups.setup, \addToTail);
-
-	~synths[\imuSave] = Synth(\trigButton, [
-		\pin, 15, \outbus, ~ctlBus.imuSave
-	], ~groups.setup, \addToTail);
-
-	~synths[\imuLed] = Synth(\ledImuToBus, [
-		\imubus, ~ctlBus.imu, \out, ~ctlBus[\leds]
-	], ~groups.setup, \addToTail);
 
 	//------------PLAY--------------//
-
-	//Audio input
-	~synths[\bbIn] = Synth(\bbIn, [
-		\out, ~audioBus.main, \directOut, 2
-	], ~groups.input);
-
-	//Keys and buttons
-	~synths[\keyUp] = Synth(\threeStateToggle, [\pin, 13, \outbus, ~ctlBus.keyUp, \nullbus, ~ctlBus[\null]], ~groups.input);
-	~synths[\keyDn] = Synth(\threeStateKey, [\pin, 15, \outbus, ~ctlBus.keyDn], ~groups.input);
-
-	~synths[\leds] = Synth(\ledBus,
-		[\inbus, ~ctlBus[\leds], \resetBus, ~ctlBus[\btnSwitch]],
-	~groups.output);
-	~synths[\ledLog] = Synth(\ledLog2ToBus, [\out, ~ctlBus[\leds], \inbus, ~ctlBus[\keyUp]], ~groups.output);
-
-	//Three routing defs, red green blue
-	~synths[\trillRouting] = nil ! 3;
-	#[trillRed, trillGreen, trillBlue].do { |key, i|
-		~synths[\trillRouting][i] = Synth(\trillRouting, [
-			//Use first buses, output on all of them (4 x 5 ch)
-			\trillBus, ~ctlBus.trill[0], //first trill bus
-			\out, ~ctlBus[key][0],
-			\nullbus, ~ctlBus[\null]
-		], ~groups.input, \addToTail);
-	};
-
-
-	//Input from keyUp button, pausing inactive routing synthDefs
-	~synths[\nodePauseController] = Synth(\nodePauseController,
-		[#[node1, node2, node3, inbus], ~synths[\trillRouting] ++ ~ctlBus.keyUp].flop.flat,
-		~groups.input, \addToTail
-	);
 
 	//IMU mapping
 	~synths[\imuPitchAmp] = ~buffers.getSynth(\imuPitchAmp, [
@@ -237,7 +252,7 @@ if (isRendering or: { ~respawnAll }) {
 	], ~groups.input, \addToTail);
 
 
-	//IMU mapping
+	//IMU mapping, unused
 	/*
 	~synths[\imuRollFreq] = ~buffers.getSynth(\imuRollFreq, [
 		\in, ~ctlBus[\imuRoll],
@@ -245,112 +260,80 @@ if (isRendering or: { ~respawnAll }) {
 	], ~groups.input, \addToTail);
 	*/
 
-	//Placeholders for synths
-	#[envFollow, volume, saw].do { |key|
-		~synths[key] = nil ! 4;
-	};
-
-	4.do { |i|
-
-		~synths[\envFollow][i] = Synth(\envFollow, [
-			\in, ~audioBus.main.subBus(i),
-			\out, ~ctlBus.envFollow.subBus(i),
-		], ~groups.analysis, \addToTail);
-
-		/*
-		~synths[\pitchTracker][i] = Synth(\pitchTrackerKr, [
-			\in, ~audioBus.main.subBus(i),
-			\out, ~audioBus.pitchTracker.subBus(i),
-			\inAmp, ~ctlBus.envFollow.subBus(i),
-			\outPitch, ~ctlBus.pitch.subBus(i),
-			\ffreq, #[32.7, 48.99, 73.41, 110][i]
-		], ~groups.analysis, \addToTail);
-
-		~synths[\saw][i] = Synth(\pitchSawFilter, [
-			\in, ~audioBus.pitchTracker.subBus(i),
-			\out, ~audioBus[\main].subBus(i),
-			\trillBus, ~ctlBus.trillGreen[i],
-			\pitchBus, ~ctlBus.pitch.subBus(i),
-			\gain, 1
-		], ~groups.prefx, \addToTail);
-		*/
-
-
-		~synths[\volume][i] = Synth(\volume, [
-			\in, ~audioBus[\main].subBus(i),
-			\out, ~audioBus[\main].subBus(i),
-			\imuPitchAmp, ~ctlBus[\imuPitchAmp], //pitch
-			\trillBus, ~ctlBus[\trillRed][i],
-			\preamp, 6
-		], ~groups.level, \addToTail);
-
-	};
-
-	/*
-	~synths[\pitchTracker] = Synth(\pitchTrackerFaust, [
-		\in, ~audioBus.main,
-		\out, ~audioBus.pitchTracker,
-		\inAmp, ~ctlBus.envFollow,
-		\outPitch, ~ctlBus.pitch,
-		\ffreq, [32.7, 48.99, 73.41, 110]
-	], ~groups.analysis, \addToTail);
-	*/
-
-	//------------FX-----------------
-
-/*
-	~synths[\allPass] = Synth(\allPass, [
-		\in, ~audioBus[\main],
-		\out, ~audioBus[\main],
-		\imuRollFreq, ~ctlBus[\imuRollFreq]
-	], ~groups.postfx, \addToTail);
-	*/
-
-	[\preLimiterGain, \fyr].do { |key|
-		~synths[key] = nil ! 4;
-	};
-
-	4.do { |i|
-/*
-		~synths[\fyr][i] = Synth(\fyr, [
-			\in, ~audioBus[\main].subBus(i),
-			\out, ~audioBus[\main].subBus(i),
-			\ampBus, ~ctlBus.[\envFollow].subBus(i)
-		], ~groups.postfx, \addToTail);
-		*/
-
-		~synths[\preLimiterGain][i] = Synth(\preLimiterGain, [
-			\in, ~audioBus[\main].subBus(i),
-			\out, ~audioBus[\main].subBus(i),
-			\trillBus, ~ctlBus.trillRed[i]
-		], ~groups.postfx, \addToTail);
+	//Three routing defs, red green blue
+	~synths[\trillRouting] = nil ! 3;
+	#[trillRed, trillGreen, trillBlue].do { |key, i|
+		~synths[\trillRouting][i] = Synth(\trillRouting, [
+			//Use first buses, output on all of them (4 x 5 ch)
+			\trillBus, ~ctlBus.trill[0], //first trill bus
+			\out, ~ctlBus[key][0],
+			\resetBus, ~ctlBus[\reset]
+		], ~groups.input, \addToTail);
 	};
 
 
 
-	//Red 1-4
-	/*
-	~synths[\compressor] = Synth(\compressor4x, [
-		\in, ~audioBus[\main],
-		\trillBus, ~ctlBus[\trillRed][0],
-		\ampBus, ~ctlBus[\envFollow],
-		\ratio, 4,
-		\knee, 6,
-		\dbHi, 0,
-		\dbLo, -32
-	], ~groups.prefx, \addToTail);
-	*/
+	~synths[\playControllers] = SynthDef(\bubblePlayControllers, {
+		|ledBus, ledResetBus, keyUpPin, keyUpBus, keyDnPin, keyDnBus, redNode, greenNode, blueNode|
+
+		var keyUp;
+
+		//Key up to bus, toggle state 1/2 with short press. TODO do we need a nullbus here?
+		Out.kr(keyUpBus, ~modules.build(\threeStateToggle, keyUpPin));
+		//Key down to bus, short/double/long press
+		Out.kr(keyDnBus, ~modules.build(\threeStateKey, keyDnPin));
+		//And get input from keyUp bus
+		keyUp = In.kr(keyUpBus, 1);
+
+		//Pause trill routing nodes depending on state
+		~modules.build(\nodePauseController, keyUp, redNode, greenNode, blueNode);
+		//Display three states as rgb leds
+		~modules.build(\threeStateToLedBus, keyUp, ledBus);
+		//Display LED values from ledBus
+		~modules.build(\ledBus, ledBus, ledResetBus);
+
+
+	}, \ir ! 6).play(~groups.input, [
+		\ledBus, ~ctlBus[\leds],
+		\ledResetBus, ~ctlBus[\btnSwitch],
+		\keyUpPin, ~buttonPins[\keyUp],
+		\keyUpBus, ~ctlBus[\keyUp],
+		\keyDnPin, ~buttonPins[\keyDn],
+		\keyDnBus, ~ctlBus[\keyDn],
+		\redNode, ~synths[\trillRouting][0],
+		\greenNode, ~synths[\trillRouting][1],
+		\blueNode, ~synths[\trillRouting][2]
+	], \addToTail);
 
 
 
-	//TODO Map synths to buses
+	~synths[\playOutput] = SynthDef(\bubblePlayOutput, {
+		|outbus=0, directOutBus=2, volumeTrillBus=5, imuPitchAmpBus=0, preamp=1, imuPitchBus=0, imuRollBus=0|
+
+		var snd = ~modules.build(\bbIn, directOutBus);
+		var envFollow = ~modules.build(\envFollow, snd);
+		var volumeTrill = In.kr(volumeTrillBus, 20);
+		var imuPitchAmp = In.kr(imuPitchAmpBus, 1);
 
 
-	//~synths[\test] = Synth(\bbFxTest, nil, ~groups.fx1)
-	//.mapn(\amount, ~ctlBus[\trillMTSingle][0], 5);
+		snd = snd.collect { |ch, i|
+			~modules.build(\volume, ch, volumeTrill[i * 5], imuPitchAmp, preamp)
+		};
+
+		~modules.build(\bbOut, snd, imuPitchBus, imuRollBus, outbus)
+
+	}, (\ir ! 4) ++ [\kr, \ir, \ir]).play(~groups.output, [
+		\preamp, 6,
+		\outbus, 0,
+		\directOutBus, 2,
+		\volumeTrillBus, ~ctlBus[\trillRed][0],
+		\imuPitchAmpBus, ~ctlBus[\imuPitchAmp],
+		\imuPitchBus, ~ctlBus[\imuPitch],
+		\imuRollBus, ~ctlBus[\imuRoll]
+	]);
 
 
 
-	~synths[\bbOut] = Synth(\bbOut, [\in, ~audioBus.main, \out, 0, \rollBus, ~ctlBus[\imuRoll], \pitchBus, ~ctlBus[\imuPitch]], ~groups.output);
 
 }.forkIfNeeded;
+
