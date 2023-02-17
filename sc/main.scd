@@ -173,19 +173,23 @@ if (isRendering or: { ~respawnAll }) {
 
 
 	~synths[\globals] = SynthDef(\bubbleGlobals, {
-		|switchPin, switchBus, playGroup, setupGroup, busSavePin, imuBus|
+		|switchPin, switchBus, playGroup, setupGroup, busSavePin, imuBus, resetBus|
 
 		var imu, switch = ~modules.build(\simpleButton, switchPin);
+		//Load bus values on synth start and on demand
+		var busLoadTrig = \busLoad.tr(0) + Impulse.kr(0);
 		//Toggle play/setup
 		~modules.build(\nodePauseController2, switch, playGroup, setupGroup);
 		//Save/Load/Quit
-		~modules.build(\bubbleUtils, busSavePin);
+		~modules.build(\bubbleUtils, busSavePin, busLoadTrig);
 		//IMU
 		imu = ~modules.build(\imuInput,
 			\imuCalibrate.tr(0), \imuCalibrateBus.kr(0),
 			\imuSave.tr(0), \imuSaveBus.kr(0),
 			\imuLoad.tr(0)
 		);
+		//Send a reset on synth start for synths to pick up loaded bus values
+		Out.kr(resetBus, Impulse.kr(0) + busLoadTrig);
 		Out.kr(imuBus, imu);
 		Out.kr(switchBus, switch);
 
@@ -195,8 +199,10 @@ if (isRendering or: { ~respawnAll }) {
 		\playGroup, ~groups[\play],
 		\setupGroup, ~groups[\setup],
 		\busSavePin, ~buttonPins[\small],
+		\imuBus, ~ctlBus[\imu],
 		\imuCalibrateBus, ~ctlBus[\imuCalibrate],
-		\imuSaveBus, ~ctlBus[\imuSave]
+		\imuSaveBus, ~ctlBus[\imuSave],
+		\resetBus, ~ctlBus[\reset]
 	], \addToTail);
 
 
