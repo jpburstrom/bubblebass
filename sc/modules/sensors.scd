@@ -45,9 +45,9 @@
 
 ~modules.addModule(\trillFilter, (
 	desc: "Filter for single trill, UGen version based on SynthDef trillRouting",
-	sizes: [5, 4, 1],
-	func: { |trill, resetVals, reset|
-		var args = trill ++ resetVals ++ reset;
+	sizes: [5, 4],
+	func: { |trill, resetVals|
+		var args = trill ++ resetVals;
 		TrillFilter.kr(*args);
 	}
 ));
