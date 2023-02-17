@@ -5,7 +5,6 @@ SynthDef(\imuInput, {
 	Out.kr(\out.kr(0), data);
 }).add;
 
-
 SynthDef(\trillInput, {
 	4.do { |i|
 		var vals = TrillCentroids.kr(1, 0x20 + i, 0.02, 4)[0..4];

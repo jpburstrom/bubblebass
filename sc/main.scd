@@ -11,11 +11,9 @@ if (Server.default == Server.named[\ScoreDummy]) {
 		~belaServer.startAliveThread
 	};
 
+	Server.default = ~belaServer;
 	~server = Server.default;
-	//Kludge
-	//Server.default = ~belaServer;
-	//~server = ~belaServer;
-	//~server.options.maxLogins = 2;
+	~server.options.maxLogins = 2;
 };
 
 //These settings should be the same for both ScoreClock and Bela server
@@ -23,7 +21,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 ~server.options.numOutputBusChannels = 6;
 ~server.options.numInputBusChannels = 4;
 
-if (isRendering or: { ~respawnAll }) {
+if (isRendering or: { ~respawnAll ?? false }) {
 	~server.newBusAllocators;
 	~server.newBufferAllocators;
 };
@@ -69,7 +67,6 @@ if (isRendering or: { ~respawnAll }) {
 	//so let's ignore it for now
 	//see s.options.reservedNumControlBusChannels
 	// ~server.controlBusAllocator.reserve(0, 256);
-
 	~ctlBus = (
 		btnSwitch: Bus('control', 1, 1),
 		keyUp: Bus('control', 3, 1),
@@ -206,6 +203,7 @@ if (isRendering or: { ~respawnAll }) {
 	], \addToTail);
 
 
+
 	//------------SETUP-------------//
 
 	~synths[\setup] = SynthDef(\bubbleSetup, {
@@ -232,6 +230,7 @@ if (isRendering or: { ~respawnAll }) {
 		\resetBus, ~ctlBus[\reset]
 	], ~groups.setup, \addToTail);
 
+
 	~synths[\testTone] = nil ! 4;
 
 	4.do { |i|
@@ -242,6 +241,7 @@ if (isRendering or: { ~respawnAll }) {
 			\trillBus, ~ctlBus[\trillRoutingSetup][i]
 		], ~groups.setup, \addToTail);
 	};
+
 
 	//------------PLAY--------------//
 
@@ -271,6 +271,8 @@ if (isRendering or: { ~respawnAll }) {
 		], ~groups.input, \addToTail);
 	};
 
+
+
 	~synths[\playControllers] = SynthDef(\bubblePlayControllers, {
 		|ledBus, ledResetBus, keyUpPin, keyUpBus, keyDnPin, keyDnBus, redNode, greenNode, blueNode|
 
@@ -290,6 +292,7 @@ if (isRendering or: { ~respawnAll }) {
 		//Display LED values from ledBus
 		~modules.build(\ledBus, ledBus, ledResetBus);
 
+
 	}, \ir ! 6).play(~groups.input, [
 		\ledBus, ~ctlBus[\leds],
 		\ledResetBus, ~ctlBus[\btnSwitch],
@@ -301,6 +304,8 @@ if (isRendering or: { ~respawnAll }) {
 		\greenNode, ~synths[\trillRouting][1],
 		\blueNode, ~synths[\trillRouting][2]
 	], \addToTail);
+
+
 
 	~synths[\playOutput] = SynthDef(\bubblePlayOutput, {
 		|outbus=0, directOutBus=2, volumeTrillBus=5, imuPitchAmpBus=0, preamp=1, imuPitchBus=0, imuRollBus=0|
@@ -329,4 +334,6 @@ if (isRendering or: { ~respawnAll }) {
 
 
 
+
 }.forkIfNeeded;
+
