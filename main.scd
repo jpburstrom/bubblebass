@@ -57,8 +57,7 @@ if (isRendering or: { ~respawnAll ?? false }) {
 	//Modules
 	"modules.scd".loadRelative;
 	//SynthDefs
-	"synthDefs/*.scd".resolveRelative.pathMatch.do(_.load);
-
+	"synthDefs.scd".loadRelative;
 
 	~server.sync;
 
