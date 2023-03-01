@@ -276,24 +276,27 @@ if (isRendering or: { ~respawnAll ?? false }) {
 	~synths[\playControllers] = SynthDef(\bubblePlayControllers, {
 		|ledBus, ledResetBus, keyUpPin, keyUpBus, keyDnPin, keyDnBus, redNode, greenNode, blueNode|
 
-		var keyUp, keyDn;
+		var keyUp, keyDn, keyUpVals, keyDnVals;
 
 		keyUp = In.kr(keyUpBus, 1);
 		keyDn = In.kr(keyDnBus, 1);
 
+		//State
+		keyUpVals = ~modules.build(\threeStateToggle, keyUpPin, keyUp);
+		keyDnVals = ~modules.build(\threeStateKey, keyDnPin, keyDn);
+
 		//Key up to bus, toggle state 1/2 with short press. TODO do we need a nullbus here?
-		ReplaceOut.kr(keyUpBus, ~modules.build(\threeStateToggle, keyUpPin, keyUp));
+		ReplaceOut.kr(keyUpBus, keyUpVals[0]);
 		//Key down to bus, short/double/long press
-		ReplaceOut.kr(keyDnBus, ~modules.build(\threeStateKey, keyDnPin, keyDn));
+		ReplaceOut.kr(keyDnBus, keyDnVals[0]);
 		//And get input from keyUp bus
 
 		//Pause trill routing nodes depending on state
-		~modules.build(\nodePauseController, keyUp, redNode, greenNode, blueNode);
+		~modules.build(\nodePauseController3, keyUpVals[2..], redNode, greenNode, blueNode);
 		//Display three states as rgb leds
-		~modules.build(\threeStateToLedBus, keyUp, ledBus);
-		//Display LED values from ledBus
 		~modules.build(\ledBus, ledBus, ledResetBus);
-
+		//Display LED values from ledBus
+		~modules.build(\arrayToLedBus, keyUpVals[2..], ledBus);
 
 	}, \ir ! 6).play(~groups.input, [
 		\ledBus, ~ctlBus[\leds],

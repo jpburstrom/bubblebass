@@ -90,8 +90,8 @@
 	}
 ));
 
-~modules.addModule(\threeStateToLedBus, (
-	desc: "Display incoming value [2,4,8] over three buses, to use with \ledBus module",
+~modules.addModule(\threeStateToLedBus2Pow, (
+	desc: "Display incoming value [2,4,8] over three buses, to use with \ledBus module, 2.pow(n) version",
 	func: { |val=1, outbus=0, rate=\kr|
 		var outvals;
 		val = val >> 2;
@@ -100,6 +100,15 @@
 		}).postln);
 	}
 ));
+
+~modules.addModule(\arrayToLedBus, (
+	desc: "Display leds according to states of 3-item array input",
+	sizes: [3, 1, 1],
+	func: { |inputArray, outbus=0, rate=\kr|
+		Out.perform(rate, outbus, inputArray);
+	}
+));
+
 
 
 ~modules.addModule(\imuBusToLed, (

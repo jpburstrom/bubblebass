@@ -63,9 +63,9 @@
 	func: { |pin, resetVal|
 		var rawButton = ~modules.build(\digitalIn, pin);
 		var outs = BubbleButton.singleDoubleLongKr(rawButton, resetVal);
-		outs[0];
+		outs;
 	}
-))
+));
 
 //Listens to input from button, keeps states according to button gestures:
 //short press toggles between 2 and 4
@@ -108,9 +108,9 @@
 	func: { |pin, resetVal|
 		var rawButton = ~modules.build(\digitalIn, pin);
 		var outs = BubbleButton.toggleLongKr(rawButton, resetVal);
-		outs[0];
+		outs;
 	}
-))
+));
 
 ~modules.addModule(\simpleButton, (
 	desc: "Button for momentary or switch use",
@@ -127,8 +127,8 @@
 ));
 
 //
-~modules.addModule(\nodePauseController, (
-	desc: "Get input from threeState SynthDefs, toggle three nodes according to active state",
+~modules.addModule(\nodePauseController2Pow, (
+	desc: "Get input from threeState SynthDefs, toggle three nodes according to active state, 2.pow(n) version",
 	rates: \control,
 	sizes: 1,
 	specs: (
@@ -141,7 +141,21 @@
 
 	}
 ));
+//
+~modules.addModule(\nodePauseController3, (
+	desc: "Toggle three nodes according to state of 3-item array input",
+	rates: \control,
+	sizes: [3, 1, 1, 1],
+	specs: (
+		sig: ControlSpec(0, 8, step: 1)
+	),
+	func: { |inputArray, node1, node2, node3|
+		Pause.kr(inputArray[0], node1);
+		Pause.kr(inputArray[1], node2);
+		Pause.kr(inputArray[2], node3);
 
+	}
+));
 //Get input from threeState SynthDefs above, pause synthdefs according to active state
 ~modules.addModule(\nodePauseController2, (
 	desc: "Get input from threeState SynthDefs, toggle two nodes according to active state",
