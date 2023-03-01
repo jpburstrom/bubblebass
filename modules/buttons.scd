@@ -144,7 +144,7 @@
 //
 ~modules.addModule(\nodePauseController3, (
 	desc: "Toggle three nodes according to state of 3-item array input",
-	rates: \control,
+	rates: [\control, \scalar, \scalar, \scalar],
 	sizes: [3, 1, 1, 1],
 	specs: (
 		sig: ControlSpec(0, 8, step: 1)
