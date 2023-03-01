@@ -23,8 +23,7 @@
 	}
 ));
 
-
-~modules.addModule(\threeStateKey, (
+~modules.addModule(\threeStateKeySC, (
 	desc: "Listen to input from button, keep states according to button gestures: 2-short 4-double 8-long",
 	sizes: 1,
 	func: { |pin|
@@ -58,10 +57,20 @@
 )
 );
 
+~modules.addModule(\threeStateKey, (
+	desc: "Listen to input from button, keep states according to button gestures: 2-short 4-double 8-long. Plugin version",
+	sizes: 1,
+	func: { |pin, resetVal|
+		var rawButton = ~modules.build(\digitalIn, pin);
+		var outs = BubbleButton.singleDoubleLongKr(rawButton, resetVal);
+		outs[0];
+	}
+))
+
 //Listens to input from button, keeps states according to button gestures:
 //short press toggles between 2 and 4
 //8 - long press
-~modules.addModule(\threeStateToggle, (
+~modules.addModule(\threeStateToggleSC, (
 	desc: "Listen to input from button, keep states according to button gestures: short toggles 2-4, 8 on long press"
 ,	func: { |pin|
 
@@ -93,6 +102,16 @@
 )
 );
 
+~modules.addModule(\threeStateToggle, (
+	desc: "Listen to input from button, keep states according to button gestures: 2-short 4-double 8-long. Plugin version",
+	sizes: 1,
+	func: { |pin, resetVal|
+		var rawButton = ~modules.build(\digitalIn, pin);
+		var outs = BubbleButton.toggleLongKr(rawButton, resetVal);
+		outs[0];
+	}
+))
+
 ~modules.addModule(\simpleButton, (
 	desc: "Button for momentary or switch use",
 	func: { |pin|
@@ -116,9 +135,9 @@
 		sig: ControlSpec(0, 8, step: 1)
 	),
 	func: { |sig, node1, node2, node3|
-		Pause.kr(sig.composeBinaryOp('==', 2), node1);
-		Pause.kr(sig.composeBinaryOp('==', 4), node2);
-		Pause.kr(sig.composeBinaryOp('==', 8), node3);
+		Pause.kr((sig & 2).composeBinaryOp('==', 2), node1);
+		Pause.kr((sig & 4).composeBinaryOp('==', 4), node2);
+		Pause.kr((sig & 8).composeBinaryOp('==', 8), node3);
 
 	}
 ));

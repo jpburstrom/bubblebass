@@ -276,14 +276,16 @@ if (isRendering or: { ~respawnAll ?? false }) {
 	~synths[\playControllers] = SynthDef(\bubblePlayControllers, {
 		|ledBus, ledResetBus, keyUpPin, keyUpBus, keyDnPin, keyDnBus, redNode, greenNode, blueNode|
 
-		var keyUp;
+		var keyUp, keyDn;
+
+		keyUp = In.kr(keyUpBus, 1);
+		keyDn = In.kr(keyDnBus, 1);
 
 		//Key up to bus, toggle state 1/2 with short press. TODO do we need a nullbus here?
-		Out.kr(keyUpBus, ~modules.build(\threeStateToggle, keyUpPin));
+		ReplaceOut.kr(keyUpBus, ~modules.build(\threeStateToggle, keyUpPin, keyUp));
 		//Key down to bus, short/double/long press
-		Out.kr(keyDnBus, ~modules.build(\threeStateKey, keyDnPin));
+		ReplaceOut.kr(keyDnBus, ~modules.build(\threeStateKey, keyDnPin, keyDn));
 		//And get input from keyUp bus
-		keyUp = In.kr(keyUpBus, 1);
 
 		//Pause trill routing nodes depending on state
 		~modules.build(\nodePauseController, keyUp, redNode, greenNode, blueNode);
