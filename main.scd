@@ -160,7 +160,7 @@ if (isRendering or: { ~respawnAll ?? false }) {
 			var trills = ~modules.build(\trillInput);
 			trills.do { |trill, i|
 				trill.size.postln;
-				Out.kr(NamedControl.kr("out%".format(i)), trill);
+				ReplaceOut.kr(NamedControl.kr("out%".format(i)), trill);
 			}
 		}).play(~groups.global, ~ctlBus[\trill].collect({ |bus, i|
 			["out%".format(i), bus]
@@ -186,9 +186,9 @@ if (isRendering or: { ~respawnAll ?? false }) {
 			\imuLoad.tr(0)
 		);
 		//Send a reset on synth start for synths to pick up loaded bus values
-		Out.kr(resetBus, Impulse.kr(0) + busLoadTrig);
-		Out.kr(imuBus, imu);
-		Out.kr(switchBus, switch);
+		ReplaceOut.kr(resetBus, Impulse.kr(0) + busLoadTrig);
+		ReplaceOut.kr(imuBus, imu);
+		ReplaceOut.kr(switchBus, switch);
 
 	}).play(~groups.global, [
 		\switchPin, ~buttonPins[\switch],
@@ -209,9 +209,9 @@ if (isRendering or: { ~respawnAll ?? false }) {
 	~synths[\setup] = SynthDef(\bubbleSetup, {
 		|calibrateBus, calibratePin, saveBus, savePin, ledBus, imuBus|
 		//Route keyUp to calibration bus
-		Out.kr(calibrateBus, ~modules.build(\trigButton, calibratePin));
+		ReplaceOut.kr(calibrateBus, ~modules.build(\trigButton, calibratePin));
 		//Route keyDn to save bus
-		Out.kr(saveBus, ~modules.build(\trigButton, savePin));
+		ReplaceOut.kr(saveBus, ~modules.build(\trigButton, savePin));
 		//Route imu to leds
 		~modules.build(\imuBusToLed, imuBus);
 
