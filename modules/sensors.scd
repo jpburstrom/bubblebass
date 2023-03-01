@@ -12,13 +12,13 @@
 ~modules.addModule(\trillCentroids, (
 	desc: "Wrapper for TrillCentroids UGen",
 	func: { |i2c_address=0x20, noiseThreshold=0.02, prescaler=4, resetBaseline=0, i2c_bus=1, size=5|
-		if (~isBela.not and: { ~server != ~belaServer }) {
+		~modules.build(\ifBela, {
+			TrillCentroids.kr(i2c_bus, i2c_address, noiseThreshold, prescaler, resetBaseline).keep(size);
+		}, {
 			var key = "trill_%".format(i2c_address - 0x20);
 			"Can't use TrillCentroids, fallback to control %".format(key).warn;
 			NamedControl(key, 0.dup(size));
-		} {
-			TrillCentroids.kr(i2c_bus, i2c_address, noiseThreshold, prescaler, resetBaseline).keep(size);
-		}
+		});
 	}
 ));
 

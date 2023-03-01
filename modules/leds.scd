@@ -3,7 +3,10 @@
 	func: value {
 		var fallbackBus;
 		{ |pin, val, rate=\kr|
-			if (~isBela.not and: { ~server != ~belaServer }) {
+
+			~modules.build(\ifBela, {
+				DigitalOut.perform(rate, pin, val);
+			}, {
 				var key = "digitalOut_%".format(pin);
 				fallbackBus ?? {
 					fallbackBus = (
@@ -13,9 +16,7 @@
 				};
 				"Can't use DigitalOut, fallback to fake bus".warn;
 				Out.perform(rate, fallbackBus[rate].subBus(pin).index, val);
-			} {
-				DigitalOut.perform(rate, pin, val);
-			}
+			});
 		}
 	}
 ));
