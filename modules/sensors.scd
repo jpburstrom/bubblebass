@@ -29,17 +29,16 @@
 
 ~modules.addModule(\trillInput, (
 	desc: "Input 4 trills, output to buses with pos scaling",
-	func: { |posMul=(-0.9), posAdd=0.95, noiseThreshold=0.02, prescaler=4, addresses=#[0x23,0x22,0x21,0x20]|
+	func: { |noiseThreshold=0.02, prescaler=4, addresses=#[0x23,0x22,0x21,0x20]|
 		addresses.collect { |addr, i|
 			var vals = ~modules.build(\trillCentroids, addr, noiseThreshold, prescaler);
 			//Fix edges + invert scale - TODO make this part of Centroids class?
-			vals[1] = vals[1] * posMul + posAdd;
-			vals[3] = vals[3] * posMul + posAdd;
+			vals[1] = vals[1].linlin(0.05, 0.95, 1, 0);
+			vals[3] = vals[3].linlin(0.05, 0.95, 1, 0);
 			vals;
 		}
 	}
 ));
-
 ~modules.addModule(\trill2Fingers, (
 	desc: "Get a pinch value from 2 fingers",
 	sizes: [5, 1, 1, 1, 1],
