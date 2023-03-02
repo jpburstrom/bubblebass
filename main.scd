@@ -21,7 +21,7 @@ if (Server.default == Server.named[\ScoreDummy]) {
 ~server.options.numOutputBusChannels = 6;
 ~server.options.numInputBusChannels = 4;
 
-if (isRendering or: { ~respawnAll ?? false }) {
+if (isRendering) {
 	~server.newBusAllocators;
 	~server.newBufferAllocators;
 };
@@ -158,7 +158,6 @@ if (isRendering or: { ~respawnAll ?? false }) {
 		~synths[\trillInput] = SynthDef(\bubbleTrillInput, {
 			var trills = ~modules.build(\trillInput);
 			trills.do { |trill, i|
-				trill.size.postln;
 				ReplaceOut.kr(NamedControl.kr("out%".format(i)), trill);
 			}
 		}).play(~groups.global, ~ctlBus[\trill].collect({ |bus, i|
@@ -222,6 +221,7 @@ if (isRendering or: { ~respawnAll ?? false }) {
 		\imuBus, ~ctlBus.imu,
 	], \addToHead);
 
+
 	~synths[\trillRoutingSetup] = Synth(\trillRouting, [
 		//Use first buses, output on all of them (4 x 5 ch)
 		\trillBus, ~ctlBus.trill[0], //first trill bus
@@ -270,8 +270,6 @@ if (isRendering or: { ~respawnAll ?? false }) {
 		], ~groups.input, \addToTail);
 	};
 
-
-
 	~synths[\playControllers] = SynthDef(\bubblePlayControllers, {
 		|ledBus, ledResetBus, keyUpPin, keyUpBus, keyDnPin, keyDnBus, redNode, greenNode, blueNode|
 
@@ -289,7 +287,6 @@ if (isRendering or: { ~respawnAll ?? false }) {
 		//Key down to bus, short/double/long press
 		ReplaceOut.kr(keyDnBus, keyDnVals[0]);
 		//And get input from keyUp bus
-
 		//Pause trill routing nodes depending on state
 		~modules.build(\nodePauseController3, keyUpVals[2..], redNode, greenNode, blueNode);
 		//Display three states as rgb leds
