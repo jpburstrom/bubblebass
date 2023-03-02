@@ -2,10 +2,15 @@
 	desc: "Input from IMU to bus with calibration and save stuff",
 	//TODO how to do with triggers and stuff? Is this a synthDef?
 	func: { |calibrateTrig, calibrateBus, saveTrig, saveBus, loadTrig|
-		var calibrate = calibrateTrig + In.kr(calibrateBus);
-		var save = saveTrig + In.kr(saveBus);
-		var data = BNO.orientationKr(calibrate, loadTrig, save);
-		data
+		var data;
+
+		if (calibrateBus.notNil) {
+			calibrateTrig = calibrateTrig + In.kr(calibrateBus);
+		};
+		if (saveBus.notNil) {
+			saveTrig = saveTrig + In.kr(saveBus);
+		};
+		BNO.orientationKr(calibrateTrig, loadTrig, saveTrig);
 	}
 ));
 
